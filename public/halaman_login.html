@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANDRI STORE - Sign Up / Sign In</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #d8d3cd;
+            background-image: 
+                radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.4) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(0, 0, 0, 0.05) 0%, transparent 50%);
+            min-height: 100vh;
+        }
+
+        .bg-plant {
+            position: fixed;
+            left: -60px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 380px;
+            height: 650px;
+            opacity: 0.16;
+            filter: blur(14px);
+            pointer-events: none;
+            background: radial-gradient(ellipse at center, #3d3a37 0%, transparent 70%);
+            z-index: 0;
+        }
+
+        .card-container {
+            background-color: #f5f3ef;
+            box-shadow: 
+                0 30px 60px -12px rgba(0, 0, 0, 0.18),
+                0 18px 36px -18px rgba(0, 0, 0, 0.12),
+                inset 0 1px 0 rgba(255, 255, 255, 0.9);
+        }
+
+        .keycap-row {
+            display: flex;
+            gap: 4px;
+            padding: 8px;
+            background: #e2ded7;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08), inset 0 -1px 2px rgba(255, 255, 255, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .keycap {
+            flex: 1;
+            height: 76px;
+            background: linear-gradient(180deg, #f9f8f6 0%, #e6e2db 100%);
+            border-radius: 5px;
+            border: 1px solid #d1ccc3;
+            box-shadow: 
+                inset 0 2px 1px rgba(255, 255, 255, 0.9),
+                0 4px 6px rgba(0, 0, 0, 0.08),
+                0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .keycap-black {
+            position: absolute;
+            top: 2px;
+            height: 36px;
+            background: linear-gradient(180deg, #2b2b2b 0%, #121212 100%);
+            color: #ffffff;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.2);
+            z-index: 10;
+        }
+
+        .floating-input-bar {
+            position: absolute;
+            top: 34px;
+            left: 14px;
+            right: 14px;
+            height: 44px;
+            background: #f7f6f3;
+            border-radius: 8px;
+            box-shadow: 
+                0 6px 16px rgba(0, 0, 0, 0.12),
+                0 2px 4px rgba(0, 0, 0, 0.06),
+                inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border: 1px solid #ded9d0;
+            display: flex;
+            align-items: center;
+            padding: 0 14px;
+            z-index: 20;
+            transition: all 0.2s ease;
+        }
+
+        .floating-input-bar:focus-within {
+            border-color: #3b3734;
+            box-shadow: 
+                0 8px 20px rgba(0, 0, 0, 0.16),
+                0 0 0 2px rgba(0, 0, 0, 0.08);
+        }
+
+        .btn-3d {
+            background: linear-gradient(180deg, #282828 0%, #0d0d0d 100%);
+            box-shadow: 
+                0 8px 18px rgba(0, 0, 0, 0.25),
+                inset 0 1px 1px rgba(255, 255, 255, 0.25);
+            transition: all 0.15s ease;
+        }
+
+        .btn-3d:hover {
+            transform: translateY(-1px);
+            box-shadow: 
+                0 10px 22px rgba(0, 0, 0, 0.32),
+                inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        }
+
+        .btn-3d:active {
+            transform: translateY(1px);
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        .req-pill {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            background-color: #e8e4dc;
+            color: #78736a;
+            border: 1px solid #d4cecd;
+            transition: all 0.25s ease;
+        }
+
+        .req-pill.valid {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .req-pill.valid i {
+            color: #10b981;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .custom-checkbox {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            border: 1px solid #b5b0a6;
+            border-radius: 3px;
+            outline: none;
+            cursor: pointer;
+            background-color: #f7f6f3;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+
+        .custom-checkbox:checked {
+            background-color: #2b2b2b;
+            border-color: #2b2b2b;
+        }
+
+        .custom-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            top: -2px;
+            left: 2px;
+        }
+
+        /* Animasi getar saat login gagal */
+        @keyframes shakeX {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-9px); }
+            40%, 80% { transform: translateX(9px); }
+        }
+        .shake { animation: shakeX 0.45s ease; }
+    </style>
+<link rel="stylesheet" href="fx/fx.css">
+</head>
+<body class="flex items-center justify-center p-4 sm:p-6 relative overflow-x-hidden min-h-screen">
+
+    <div class="bg-plant"></div>
+
+    <!-- VIEW 1: SIGN UP FORM -->
+    <div id="signup-view" class="card-container w-full max-w-[620px] rounded-2xl p-6 sm:p-10 relative z-10 my-6 transition-all duration-300">
+        
+        <div class="text-center mb-6">
+            <h2 class="text-[12px] font-bold tracking-[0.3em] text-neutral-500 uppercase mb-1">ANDRI STORE</h2>
+            <h1 class="text-2xl sm:text-3xl font-light tracking-[0.25em] text-neutral-800 uppercase mb-1">S I G N &nbsp; U P</h1>
+            <p class="text-xs text-neutral-500 font-normal tracking-wide">Buat akun baru untuk mulai berbelanja</p>
+        </div>
+
+        <form onsubmit="handleSignUp(event)" class="space-y-5">
+            
+            <div class="relative">
+                <div class="keycap-row">
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap-black left-[100px] sm:left-[118px] w-[90px] sm:w-[100px]">FULL NAME</div>
+                </div>
+                <div class="floating-input-bar">
+                    <i class="fa-regular fa-user text-neutral-500 text-sm mr-3"></i>
+                    <input type="text" id="signup-name" required placeholder="Masukkan nama lengkap" class="w-full bg-transparent text-neutral-800 text-sm focus:outline-none placeholder-neutral-400 font-light">
+                </div>
+            </div>
+
+            <div class="relative">
+                <div class="keycap-row">
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap-black left-[100px] sm:left-[118px] w-[90px] sm:w-[100px]">EMAIL</div>
+                </div>
+                <div class="floating-input-bar">
+                    <i class="fa-regular fa-envelope text-neutral-500 text-sm mr-3"></i>
+                    <input type="email" id="signup-email" required placeholder="nama@gmail.com" class="w-full bg-transparent text-neutral-800 text-sm focus:outline-none placeholder-neutral-400 font-light">
+                </div>
+            </div>
+
+            <div class="relative">
+                <div class="keycap-row">
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap-black left-[100px] sm:left-[118px] w-[90px] sm:w-[100px]">PASSWORD</div>
+                </div>
+                <div class="floating-input-bar">
+                    <i class="fa-solid fa-lock text-neutral-500 text-xs mr-3"></i>
+                    <input type="password" id="signup-password" required oninput="validatePasswordRequirements()" placeholder="Buat password baru" class="w-full bg-transparent text-neutral-800 text-sm focus:outline-none placeholder-neutral-400 font-light pr-2">
+                    <button type="button" onclick="togglePassword('signup-password', 'signup-eye')" class="text-neutral-400 hover:text-neutral-700 focus:outline-none p-1 transition-colors" title="Tampilkan/Sembunyikan Password">
+                        <i id="signup-eye" class="fa-regular fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-3 bg-stone-200/60 rounded-xl border border-stone-300/80 space-y-2">
+                <p class="text-[11px] font-semibold text-neutral-600 uppercase tracking-wider">Syarat Keamanan Password:</p>
+                <div class="flex flex-wrap gap-2">
+                    <div id="req-length" class="req-pill"><i class="fa-solid fa-circle-check text-[10px]"></i><span>Minimal 8 Karakter</span></div>
+                    <div id="req-capital" class="req-pill"><i class="fa-solid fa-circle-check text-[10px]"></i><span>Huruf Kapital (A-Z)</span></div>
+                    <div id="req-symbol" class="req-pill"><i class="fa-solid fa-circle-check text-[10px]"></i><span>Simbol Khusus (!@#$%^&*)</span></div>
+                </div>
+            </div>
+
+            <div class="relative pt-1">
+                <div class="keycap-row">
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap-black left-[100px] sm:left-[118px] w-[110px] sm:w-[120px]">CONFIRM PASSW</div>
+                </div>
+                <div class="floating-input-bar">
+                    <i class="fa-solid fa-shield-halved text-neutral-500 text-xs mr-3"></i>
+                    <input type="password" id="signup-confirm-password" required placeholder="Ulangi password" class="w-full bg-transparent text-neutral-800 text-sm focus:outline-none placeholder-neutral-400 font-light pr-2">
+                    <button type="button" onclick="togglePassword('signup-confirm-password', 'confirm-eye')" class="text-neutral-400 hover:text-neutral-700 focus:outline-none p-1 transition-colors">
+                        <i id="confirm-eye" class="fa-regular fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2 text-xs text-neutral-600 pt-1">
+                <input type="checkbox" id="terms" required class="custom-checkbox">
+                <label for="terms" class="cursor-pointer select-none">
+                    Saya menyetujui <a href="#" class="underline font-medium text-neutral-800">Syarat & Ketentuan</a> ANDRI STORE
+                </label>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" id="btn-submit-signup" class="btn-3d w-full py-3.5 px-6 rounded-lg text-white font-medium text-xs sm:text-sm tracking-[0.25em] uppercase cursor-pointer">CREATE ACCOUNT</button>
+            </div>
+
+            <div class="text-center pt-2 text-xs text-neutral-600">
+                <span>Sudah memiliki akun? </span>
+                <button type="button" onclick="switchView('login')" class="font-medium text-neutral-800 underline underline-offset-4 decoration-neutral-500 hover:text-black transition-colors">Sign in</button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- VIEW 2: LOGIN FORM -->
+    <div id="login-view" class="card-container w-full max-w-[620px] rounded-2xl p-6 sm:p-10 relative z-10 my-6 hidden transition-all duration-300">
+        
+        <div class="text-center mb-8">
+            <h2 class="text-[12px] font-bold tracking-[0.3em] text-neutral-500 uppercase mb-1">ANDRI STORE</h2>
+            <h1 class="text-2xl sm:text-3xl font-light tracking-[0.25em] text-neutral-800 uppercase mb-2">L O G I N</h1>
+            <p class="text-xs sm:text-sm text-neutral-500 font-normal tracking-wide">Welcome back — please sign in to continue</p>
+        </div>
+
+        <form onsubmit="handleLogin(event)" class="space-y-6">
+            
+            <div class="relative">
+                <div class="keycap-row">
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap-black left-[108px] sm:left-[118px] w-[88px] sm:w-[96px]">USERNAME</div>
+                </div>
+                <div class="floating-input-bar">
+                    <i class="fa-regular fa-user text-neutral-500 text-lg mr-3"></i>
+                    <input type="text" id="login-username" required placeholder="username atau email" class="w-full bg-transparent text-neutral-700 text-sm focus:outline-none placeholder-neutral-400 font-light">
+                </div>
+            </div>
+
+            <div class="relative pt-1">
+                <div class="keycap-row">
+                    <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
+                    <div class="keycap-black left-[108px] sm:left-[118px] w-[88px] sm:w-[96px]">PASSWORD</div>
+                </div>
+                <div class="floating-input-bar">
+                    <i class="fa-solid fa-lock-keyhole text-neutral-500 text-base mr-3"></i>
+                    <input type="password" id="login-password" required placeholder="enter your password" class="w-full bg-transparent text-neutral-700 text-sm focus:outline-none placeholder-neutral-400 font-light pr-2">
+                    <button type="button" onclick="togglePassword('login-password', 'login-eye')" class="text-neutral-400 hover:text-neutral-700 focus:outline-none transition-colors p-1" title="Tampilkan / Sembunyikan Password">
+                        <i id="login-eye" class="fa-regular fa-eye text-sm"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" class="btn-3d w-full py-3.5 px-6 rounded-lg text-white font-medium text-xs sm:text-sm tracking-[0.25em] uppercase transition-all duration-200 cursor-pointer">SIGN IN</button>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-neutral-600 pt-1">
+                <label class="flex items-center space-x-2 cursor-pointer select-none">
+                    <input type="checkbox" class="custom-checkbox" id="remember-me">
+                    <span class="text-neutral-600 font-normal">Remember me</span>
+                </label>
+                <a href="#" class="text-neutral-600 hover:text-neutral-900 underline underline-offset-4 decoration-neutral-400 transition-colors">Forgot password?</a>
+            </div>
+
+            <div class="text-center pt-2 text-xs text-neutral-600">
+                <span>Don't have an account? </span>
+                <button type="button" onclick="switchView('signup')" class="font-medium text-neutral-800 underline underline-offset-4 decoration-neutral-500 hover:text-black transition-colors">Sign up</button>
+            </div>
+
+        </form>
+    </div>
+
+    <!-- VIEW 3: DASHBOARD (landing setelah login) -->
+    <div id="dashboard-view" class="w-full max-w-[1240px] hidden my-4 z-10 transition-all duration-300">
+        <div class="flex flex-col lg:flex-row gap-6">
+            
+            <aside class="w-full lg:w-64 glass-card rounded-2xl p-6 flex flex-col justify-between space-y-6">
+                <div>
+                    <div class="flex items-center space-x-3 mb-8">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-400 to-pink-300 flex items-center justify-center text-white text-xl shadow-md">
+                            <i class="fa-solid fa-cube"></i>
+                        </div>
+                        <span class="text-xl font-bold tracking-tight text-slate-800">Pulse</span>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">MENU</p>
+                            <nav class="space-y-1">
+                                <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl bg-slate-800 text-white font-medium text-sm shadow-sm">
+                                    <i class="fa-solid fa-house text-sm"></i><span>Overview</span>
+                                </a>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-slate-600 hover:bg-white/60 font-medium text-sm transition-colors">
+                                    <i class="fa-solid fa-chart-simple text-sm"></i><span>Analytics</span>
+                                </a>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-slate-600 hover:bg-white/60 font-medium text-sm transition-colors">
+                                    <i class="fa-regular fa-folder text-sm"></i><span>Projects</span>
+                                </a>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-slate-600 hover:bg-white/60 font-medium text-sm transition-colors">
+                                    <i class="fa-regular fa-user-group text-sm"></i><span>Team</span>
+                                </a>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-slate-600 hover:bg-white/60 font-medium text-sm justify-between transition-colors">
+                                    <span class="flex items-center space-x-3"><i class="fa-regular fa-envelope text-sm"></i><span>Inbox</span></span>
+                                    <span class="bg-purple-200 text-purple-700 text-xs px-2 py-0.5 rounded-full font-semibold">4</span>
+                                </a>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-slate-600 hover:bg-white/60 font-medium text-sm transition-colors">
+                                    <i class="fa-regular fa-calendar text-sm"></i><span>Calendar</span>
+                                </a>
+                            </nav>
+                        </div>
+
+                        <div>
+                            <p class="text-[10px] font-semibold text-slate-400 uppercase tracking-widest mb-3">GENERAL</p>
+                            <nav class="space-y-1">
+                                <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-slate-600 hover:bg-white/60 font-medium text-sm transition-colors">
+                                    <i class="fa-solid fa-gear text-sm"></i><span>Settings</span>
+                                </a>
+                                <a href="#" class="flex items-center space-x-3 px-4 py-2.5 rounded-xl text-slate-600 hover:bg-white/60 font-medium text-sm transition-colors">
+                                    <i class="fa-regular fa-circle-question text-sm"></i><span>Help & Support</span>
+                                </a>
+                            </nav>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="p-3 bg-white/80 rounded-2xl border border-white flex items-center justify-between shadow-sm">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-9 h-9 rounded-full bg-amber-200 flex items-center justify-center font-bold text-amber-800 text-xs overflow-hidden">
+                            <i class="fa-solid fa-user-astronaut text-base"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
+                                <span id="user-display-name">Andri Store</span>
+                                <span id="admin-badge" class="hidden text-[8px] font-bold bg-slate-800 text-white px-1.5 py-0.5 rounded tracking-widest">ADMIN</span>
+                            </h4>
+                            <p id="user-display-email" class="text-[10px] text-slate-500">andri.com</p>
+                        </div>
+                    </div>
+                    <button onclick="logout()" class="text-slate-400 hover:text-slate-700 p-1.5" title="Logout">
+                        <i class="fa-solid fa-arrow-right-from-bracket text-xs"></i>
+                    </button>
+                </div>
+            </aside>
+
+            <main class="flex-1 space-y-6">
+                
+                <header class="glass-card rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div>
+                        <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Overview</h1>
+                        <p class="text-xs text-slate-500 mt-1">Welcome back, <span id="welcome-name">Andri store</span> — here's what's happening today.</p>
+                    </div>
+
+                    <div class="flex items-center space-x-3 w-full md:w-auto">
+                        <a href="dashboard.html" class="h-9 px-3 bg-slate-800 text-white rounded-xl flex items-center justify-center hover:bg-slate-700 text-xs font-semibold whitespace-nowrap transition-colors" title="Buka Console & Shop ANDRI STORE">
+                            <i class="fa-solid fa-server mr-1.5"></i>Console
+                        </a>
+                        <div class="relative flex-1 md:w-64">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" placeholder="Search projects, analytics..." class="w-full pl-9 pr-4 py-2 bg-white/70 rounded-xl text-xs text-slate-700 focus:outline-none border border-slate-200">
+                        </div>
+                        <button class="w-9 h-9 bg-white/80 rounded-xl border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-white text-xs">
+                            <i class="fa-regular fa-bell"></i>
+                        </button>
+                        <button class="w-9 h-9 bg-white/80 rounded-xl border border-slate-200 text-slate-600 flex items-center justify-center hover:bg-white text-xs">
+                            <i class="fa-solid fa-sliders"></i>
+                        </button>
+                    </div>
+                </header>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="glass-card p-5 rounded-2xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100/80 text-blue-600 flex items-center justify-center text-lg"><i class="fa-solid fa-chart-line"></i></div>
+                        <div>
+                            <span class="text-xs text-slate-500 font-medium">Revenue</span>
+                            <h3 class="text-2xl font-bold text-slate-800 tracking-tight mt-0.5">$48,239</h3>
+                        </div>
+                        <div class="flex items-center text-[11px] text-emerald-600 font-semibold space-x-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i><span>12.5%</span><span class="text-slate-400 font-normal">vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-2xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-indigo-100/80 text-indigo-600 flex items-center justify-center text-lg"><i class="fa-solid fa-user-group"></i></div>
+                        <div>
+                            <span class="text-xs text-slate-500 font-medium">Active Users</span>
+                            <h3 class="text-2xl font-bold text-slate-800 tracking-tight mt-0.5">6,742</h3>
+                        </div>
+                        <div class="flex items-center text-[11px] text-emerald-600 font-semibold space-x-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i><span>+8.2%</span><span class="text-slate-400 font-normal">vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-2xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100/80 text-purple-600 flex items-center justify-center text-lg"><i class="fa-solid fa-crosshair"></i></div>
+                        <div>
+                            <span class="text-xs text-slate-500 font-medium">Conversion Rate</span>
+                            <h3 class="text-2xl font-bold text-slate-800 tracking-tight mt-0.5">3.24%</h3>
+                        </div>
+                        <div class="flex items-center text-[11px] text-emerald-600 font-semibold space-x-1">
+                            <i class="fa-solid fa-arrow-trend-up"></i><span>1.1%</span><span class="text-slate-400 font-normal">vs last month</span>
+                        </div>
+                    </div>
+
+                    <div class="glass-card p-5 rounded-2xl space-y-3">
+                        <div class="w-10 h-10 rounded-xl bg-rose-100/80 text-rose-500 flex items-center justify-center text-lg"><i class="fa-solid fa-chart-pie"></i></div>
+                        <div>
+                            <span class="text-xs text-slate-500 font-medium">Bounce Rate</span>
+                            <h3 class="text-2xl font-bold text-slate-800 tracking-tight mt-0.5">42%</h3>
+                        </div>
+                        <div class="flex items-center text-[11px] text-emerald-600 font-semibold space-x-1">
+                            <i class="fa-solid fa-arrow-trend-down"></i><span>-3.4%</span><span class="text-slate-400 font-normal">vs last month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <div class="lg:col-span-2 glass-card rounded-2xl p-6 flex flex-col justify-between">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-base font-bold text-slate-800">Traffic Overview</h3>
+                            <select class="text-xs bg-white/80 border border-slate-200 rounded-lg px-3 py-1.5 text-slate-600 outline-none">
+                                <option>Last 30 days</option>
+                                <option>Last 7 days</option>
+                            </select>
+                        </div>
+                        <div class="h-52 w-full">
+                            <canvas id="trafficChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="glass-card rounded-2xl p-6 flex flex-col justify-between space-y-4">
+                        <h3 class="text-base font-bold text-slate-800">Top Projects</h3>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                                    <span class="text-slate-800 flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-purple-500"></span><span>Website Redesign</span></span>
+                                    <span class="text-slate-500">78%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-2"><div class="bg-purple-500 h-2 rounded-full" style="width: 78%"></div></div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                                    <span class="text-slate-800 flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-blue-500"></span><span>Mobile App Launch</span></span>
+                                    <span class="text-slate-500">52%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-2"><div class="bg-blue-500 h-2 rounded-full" style="width: 52%"></div></div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between text-xs font-semibold mb-1">
+                                    <span class="text-slate-800 flex items-center space-x-2"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span>Brand Campaign</span></span>
+                                    <span class="text-slate-500">35%</span>
+                                </div>
+                                <div class="w-full bg-slate-200 rounded-full h-2"><div class="bg-amber-500 h-2 rounded-full" style="width: 35%"></div></div>
+                            </div>
+                        </div>
+
+                        <button class="w-full py-2 bg-white/80 hover:bg-white text-xs font-semibold text-slate-700 rounded-xl border border-slate-200 transition-colors">View all projects →</button>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script>
+        /* =====================================================
+           ANDRI STORE — Auth (login admin otomatis via API)
+        ===================================================== */
+
+        const API_BASE = '/api'; // ganti 'https://api.domainkamu.com/api' jika frontend & backend terpisah
+
+        // Fallback offline: set FALSE saat produksi agar kredensial admin TIDAK tersimpan di frontend.
+        // true  = halaman tetap bisa login walau server mati (kredensial masih terlihat di source)
+        // false = login admin HANYA lewat server (aman)
+        const ALLOW_OFFLINE_FALLBACK = true;
+
+        const ADMIN_ACCOUNT = {
+            username: 'andriyt',
+            email: 'andrizalhacieboan@gmail.com',
+            password: 'andrihsb2002',
+            name: 'Andri'
+        };
+
+        let registeredUser = null;
+        let currentUser = null;
+
+        // ===== Toggle Password =====
+        function togglePassword(inputId, eyeIconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(eyeIconId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye');
+            }
+        }
+
+        // ===== Live Password Criteria =====
+        function validatePasswordRequirements() {
+            const password = document.getElementById('signup-password').value;
+            const hasLength = password.length >= 8;
+            updateReqPill(document.getElementById('req-length'), hasLength);
+            const hasCapital = /[A-Z]/.test(password);
+            updateReqPill(document.getElementById('req-capital'), hasCapital);
+            const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password);
+            updateReqPill(document.getElementById('req-symbol'), hasSymbol);
+            return hasLength && hasCapital && hasSymbol;
+        }
+        function updateReqPill(element, isValid) {
+            element.classList.toggle('valid', isValid);
+        }
+
+        // ===== Getar kartu saat error =====
+        function shakeCard(viewId) {
+            const el = document.getElementById(viewId);
+            if (!el) return;
+            el.classList.remove('shake');
+            void el.offsetWidth;
+            el.classList.add('shake');
+        }
+
+        // ===== SIGN UP =====
+        function handleSignUp(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('signup-name').value.trim();
+            const email = document.getElementById('signup-email').value.trim().toLowerCase();
+            const password = document.getElementById('signup-password').value;
+            const confirmPassword = document.getElementById('signup-confirm-password').value;
+
+            if (!validatePasswordRequirements()) {
+                showToast('Password harus 8+ karakter, ada huruf kapital, dan simbol!', 'error');
+                shakeCard('signup-view');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showToast('Konfirmasi password tidak cocok!', 'error');
+                shakeCard('signup-view');
+                return;
+            }
+            // Cegah pembajakan identitas admin
+            if (name.toLowerCase() === ADMIN_ACCOUNT.username || email === ADMIN_ACCOUNT.email) {
+                showToast('Username / email ini milik Admin — gunakan yang lain!', 'error');
+                shakeCard('signup-view');
+                return;
+            }
+
+            registeredUser = { name, email, password };
+            localStorage.setItem('andri_registered', JSON.stringify(registeredUser));
+
+            showToast('Akun ANDRI STORE berhasil dibuat! Silakan Sign In.', 'success');
+            document.getElementById('login-username').value = name;
+            setTimeout(() => switchView('login'), 1200);
+        }
+
+        // ===== LOGIN (API-first) =====
+        async function handleLogin(event) {
+            event.preventDefault();
+            const input = document.getElementById('login-username').value.trim();
+            const password = document.getElementById('login-password').value;
+            const rememberEl = document.getElementById('remember-me');
+            const remember = rememberEl ? rememberEl.checked : false;
+
+            if (!input || !password) { showToast('Mohon isi username dan password!', 'error'); return; }
+
+            setLoginLoading(true);
+            try {
+                const res = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: input, password, remember })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (res.ok && data.success && data.user) {
+                    loginAs(data.user, data.user.role, remember, data.token);
+                    return;
+                }
+                showToast(data.message || 'Username atau password salah!', 'error');
+                shakeCard('login-view');
+            } catch (err) {
+                if (ALLOW_OFFLINE_FALLBACK) localLogin(input, password, remember);
+                else showToast('Server tidak dapat dihubungi. Coba lagi nanti.', 'error');
+            } finally {
+                setLoginLoading(false);
+            }
+        }
+
+        function localLogin(input, password, remember) {
+            const inputLower = input.toLowerCase();
+            if ((inputLower === ADMIN_ACCOUNT.username || inputLower === ADMIN_ACCOUNT.email) &&
+                password === ADMIN_ACCOUNT.password) {
+                loginAs({ name: ADMIN_ACCOUNT.name, email: ADMIN_ACCOUNT.email }, 'admin', remember);
+                return;
+            }
+            if (registeredUser &&
+                (inputLower === registeredUser.name.toLowerCase() || inputLower === registeredUser.email) &&
+                password === registeredUser.password) {
+                loginAs({ name: registeredUser.name, email: registeredUser.email }, 'user', remember);
+                return;
+            }
+            showToast('Username atau password salah!', 'error');
+            shakeCard('login-view');
+        }
+
+        function loginAs(user, role, remember, token) {
+            currentUser = { ...user, role };
+            const session = { ...currentUser, token: token || null };
+            try {
+                (remember ? localStorage : sessionStorage).setItem('andri_session', JSON.stringify(session));
+            } catch (e) {}
+
+            updateUserDisplay();
+            showToast(role === 'admin'
+                ? 'Selamat datang kembali, Admin ' + user.name + '! 🛡️'
+                : `Selamat datang kembali, ${user.name}!`, 'success');
+
+            setTimeout(() => { switchView('dashboard'); initChart(); }, role === 'admin' ? 500 : 800);
+        }
+
+        function setLoginLoading(loading) {
+            const btn = document.querySelector('#login-view button[type="submit"]');
+            if (!btn) return;
+            btn.disabled = loading;
+            btn.style.opacity = loading ? '0.7' : '';
+            btn.innerHTML = loading ? '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>MEMVERIFIKASI...' : 'SIGN IN';
+        }
+
+        function updateUserDisplay() {
+            if (!currentUser) return;
+            document.getElementById('user-display-name').textContent = currentUser.name;
+            document.getElementById('user-display-email').textContent = currentUser.email;
+            document.getElementById('welcome-name').textContent = currentUser.name.split(' ')[0];
+            document.getElementById('admin-badge').classList.toggle('hidden', currentUser.role !== 'admin');
+        }
+
+        // ===== Sesi =====
+        function getSavedSession() {
+            try {
+                return JSON.parse(localStorage.getItem('andri_session') ||
+                    sessionStorage.getItem('andri_session') || 'null');
+            } catch (e) { return null; }
+        }
+
+        async function restoreSession() {
+            const saved = getSavedSession();
+            if (!saved || !saved.name || !saved.role) return;
+            currentUser = { name: saved.name, email: saved.email, role: saved.role };
+            updateUserDisplay();
+            switchView('dashboard');
+            initChart();
+
+            // Validasi token ke server di background — auto-logout jika kedaluwarsa
+            if (saved.token) {
+                try {
+                    const res = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: 'Bearer ' + saved.token } });
+                    if (res.status === 401) { showToast('Sesi kedaluwarsa, silakan login ulang.', 'info'); logout(); }
+                } catch (e) { /* offline: pertahankan sesi lokal */ }
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            localStorage.removeItem('andri_session');
+            sessionStorage.removeItem('andri_session');
+            document.getElementById('admin-badge').classList.add('hidden');
+            document.getElementById('login-username').value = '';
+            document.getElementById('login-password').value = '';
+            switchView('login');
+            showToast('Anda berhasil keluar.', 'info');
+        }
+
+        // ===== Switch View =====
+        function switchView(viewName) {
+            ['signup-view', 'login-view', 'dashboard-view'].forEach(id =>
+                document.getElementById(id).classList.add('hidden')
+            );
+            document.getElementById(viewName + '-view').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // ===== Toast =====
+        let toastCount = 0;
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            const bg = type === 'error' ? 'bg-red-800' : 'bg-neutral-900';
+            const icon = type === 'success' ? 'fa-solid fa-circle-check text-emerald-400'
+                       : type === 'error'   ? 'fa-solid fa-circle-xmark text-rose-400'
+                       :                      'fa-solid fa-circle-info text-sky-400';
+            toast.className = `fixed right-6 ${bg} text-white px-6 py-3.5 rounded-xl shadow-2xl text-xs font-medium tracking-wide z-50 transition-all duration-300 flex items-center space-x-3 border border-white/20`;
+            toast.style.top = (24 + toastCount * 64) + 'px';
+            toast.innerHTML = `<i class="${icon} text-base"></i><span>${message}</span>`;
+            document.body.appendChild(toast);
+            toastCount++;
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                setTimeout(() => { toast.remove(); toastCount = Math.max(0, toastCount - 1); }, 300);
+            }, 3000);
+        }
+
+        // ===== Chart =====
+        let chartInstance = null;
+        function initChart() {
+            if (chartInstance) return;
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Oct 01', 'Oct 05', 'Oct 10', 'Oct 15', 'Oct 20', 'Oct 25'],
+                    datasets: [{
+                        label: 'Visitors',
+                        data: [12, 19, 14, 22, 18, 26],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 }, color: '#94a3b8' } },
+                        y: { display: false }
+                    }
+                }
+            });
+        }
+
+        // ===== Init: muat user terdaftar + pulihkan sesi =====
+        (function initAuth() {
+            try { registeredUser = JSON.parse(localStorage.getItem('andri_registered') || 'null'); }
+            catch (e) { registeredUser = null; }
+            restoreSession();
+        })();
+    </script>
+<script src="fx/fx.js"></script>
+</body>
+</html>
