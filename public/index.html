@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ANDRI STORE — Console & Shop Dashboard: panel Pterodactyl, script bot, dan jasa website.">
+<title>ANDRI STORE - Console & Shop Dashboard</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+tailwind.config = {
+  theme: { extend: {
+    fontFamily: { sans: ['Inter', 'sans-serif'] },
+    colors: { brand: {50:'#fbf9f5',100:'#f5f0e6',500:'#262626',600:'#171717',700:'#0a0a0a'},
+      ivory: {50:'#fdfbf7',100:'#f7f3eb',200:'#ece5d8',300:'#dfd5c3',800:'#423d33',900:'#2b2720'} }
+  } }
+}
+</script>
+
+<style>
+:root{
+  --bg-gradient: linear-gradient(135deg,#f5f2eb 0%,#ece5d8 35%,#e2d9c8 70%,#d8cebc 100%);
+  --glass-bg: rgba(253,251,247,.88);
+  --glass-card-bg: rgba(255,254,250,.95);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg-gradient);color:#2b2720;min-height:100vh;overflow-x:hidden;transition:background .4s ease}
+
+/* ====== DARK THEME ====== */
+html.theme-dark{
+  --bg-gradient: linear-gradient(135deg,#1f1f1f 0%,#1a1a1a 40%,#141414 75%,#0f0f0f 100%);
+  --glass-bg: rgba(28,28,28,.86);
+  --glass-card-bg: rgba(34,34,34,.94);
+}
+html.theme-dark body{background:var(--bg-gradient) !important;color:#f5f5f5 !important}
+html.theme-dark .blob{opacity:.05}
+html.theme-dark .glass-panel,html.theme-dark .glass-card{color:#f5f5f5;border-color:rgba(255,255,255,.08)}
+html.theme-dark .bg-white,html.theme-dark .bg-white\/50,html.theme-dark .bg-white\/70,html.theme-dark .bg-white\/80,html.theme-dark .bg-white\/95{background:rgba(38,38,38,.92) !important}
+html.theme-dark .bg-neutral-100,html.theme-dark .bg-neutral-50{background:#262626 !important}
+html.theme-dark .text-neutral-900,html.theme-dark .text-neutral-800,html.theme-dark .text-neutral-700,html.theme-dark .text-neutral-600{color:#f5f5f5 !important}
+html.theme-dark .text-neutral-500,html.theme-dark .text-neutral-400,html.theme-dark .text-neutral-300{color:#a3a3a3 !important}
+html.theme-dark input,html.theme-dark textarea,html.theme-dark select{background:#1f1f1f !important;color:#f5f5f5 !important;border-color:#404040 !important}
+html.theme-dark .glass-icon-box{background:linear-gradient(135deg,#2e2e2e,#262626);border-color:rgba(255,255,255,.08)}
+html.theme-dark .glass-pill-dark,html.theme-dark .ptab.active{background:#f5f5f5 !important;color:#171717 !important}
+html.theme-dark .border-white,html.theme-dark .border-neutral-200,html.theme-dark .border-neutral-200\/80{border-color:rgba(255,255,255,.1) !important}
+html.theme-dark .ai-msg.bot{background:#1f1f1f !important;border-color:#333 !important;color:#e5e5e5 !important}
+html.theme-dark details.faq{background:rgba(38,38,38,.8);border-color:rgba(255,255,255,.08)}
+html.theme-dark details.faq summary{color:#f5f5f5}
+html.theme-dark details.faq p{color:#a3a3a3}
+html.theme-dark .ptab{background:rgba(38,38,38,.8);color:#d4d4d4;border-color:rgba(255,255,255,.08)}
+
+.glass-panel{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);box-shadow:0 12px 32px -6px rgba(60,50,40,.06),0 4px 12px -2px rgba(60,50,40,.03)}
+.glass-card{background:var(--glass-card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px -4px rgba(70,60,50,.05),inset 0 1px 1px rgba(255,255,255,.8)}
+.glass-pill-dark{background:#171717 !important;color:#fff !important;box-shadow:0 6px 18px rgba(23,23,23,.22)}
+.glass-icon-box{background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(245,240,230,.6));box-shadow:inset 0 1px 1px #fff,0 4px 10px rgba(60,50,40,.04);border:1px solid rgba(255,255,255,.9)}
+
+.blob{position:absolute;border-radius:50%;filter:blur(90px);z-index:-1;opacity:.55;animation:float 12s infinite alternate ease-in-out}
+.blob-1{top:-5%;left:10%;width:380px;height:380px;background:#e8ded0}
+.blob-2{top:35%;left:-5%;width:420px;height:420px;background:#ded2c0}
+.blob-3{bottom:5%;right:5%;width:450px;height:450px;background:#e3d7c5}
+.blob-4{top:15%;right:15%;width:320px;height:320px;background:#f0e6d6}
+@keyframes float{0%{transform:translateY(0) scale(1)}100%{transform:translateY(18px) scale(1.04)}}
+
+.page-view{display:none;opacity:0;transform:translateY(8px);transition:opacity .25s ease,transform .25s ease}
+.page-view.active{display:block;opacity:1;transform:translateY(0)}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleUp{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+.animate-scaleUp{animation:scaleUp .2s ease-out forwards}
+
+/* ====== TAB KONTEN ADMIN/USER ====== */
+.admin-tab-content{display:none}
+.admin-tab-content.active{display:block;animation:fadeIn .2s ease-out}
+
+/* ====== ROLE-BASED: elemen .admin-only hilang otomatis di mode User ====== */
+body.role-user .admin-only{display:none !important}
+
+.nav-link{transition:transform .3s cubic-bezier(.16,1,.3,1),background-color .3s ease,color .3s ease,box-shadow .3s ease}
+.nav-link:hover{transform:translateX(8px)}
+.nav-link.glass-pill-dark{transform:translateX(8px)}
+
+@media (max-width:1023px){
+  #sidebarNav{position:fixed;top:0;left:0;height:100vh;width:min(86vw,320px);max-width:320px;z-index:50;transform:translateX(-100%);transition:transform .35s cubic-bezier(.16,1,.3,1);overflow-y:auto;box-shadow:12px 0 36px rgba(40,30,20,.18)}
+  #sidebarNav.open{transform:translateX(0)}
+  #sidebarOverlay{position:fixed;inset:0;background:rgba(20,18,15,.45);backdrop-filter:blur(5px);z-index:40;opacity:0;pointer-events:none;transition:opacity .35s ease}
+  #sidebarOverlay.open{opacity:1;pointer-events:auto}
+}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-thumb{background:rgba(140,130,115,.3);border-radius:10px}
+
+html{scroll-behavior:smooth}
+body{-webkit-tap-highlight-color:transparent}
+button,a,input,select,textarea{touch-action:manipulation}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid rgba(23,23,23,.18);outline-offset:2px}
+.scrollbar-none{scrollbar-width:none;-ms-overflow-style:none}
+.scrollbar-none::-webkit-scrollbar{display:none}
+
+/* ====== MODAL ====== */
+.modal{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal.open{display:flex}
+.modal-backdrop{position:absolute;inset:0;background:rgba(25,22,18,.5);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.modal-box{position:relative;width:100%;max-width:30rem;max-height:calc(100vh - 2rem);overflow-y:auto}
+
+/* ====== TOAST ====== */
+.toast-stack{position:fixed;right:1rem;bottom:5.5rem;z-index:100;display:flex;flex-direction:column;gap:.65rem;width:min(380px,calc(100vw - 2rem));pointer-events:none}
+.toast-stack>div{pointer-events:auto;transition:opacity .3s ease,transform .3s ease}
+
+/* ====== AI CHAT ====== */
+#aiChatWidgetContainer{position:fixed;right:1rem;bottom:1rem;z-index:60;display:flex;flex-direction:column;align-items:flex-end;gap:.75rem}
+#aiChatDrawer{display:none;width:380px;max-width:calc(100vw - 5.5rem);height:540px;background:var(--glass-card-bg);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.95);border-radius:1.5rem;box-shadow:0 24px 48px -12px rgba(50,40,30,.25);overflow:hidden}
+#aiChatDrawer.open{display:flex;flex-direction:column;animation:scaleUp .25s ease-out}
+#aiChatMessages{display:flex;flex-direction:column}
+.ai-msg{max-width:85%;padding:.6rem .9rem;border-radius:1rem;font-size:.75rem;line-height:1.55;white-space:pre-line}
+.ai-msg.bot{background:#fff;border:1px solid #eee;border-bottom-left-radius:.25rem;align-self:flex-start;box-shadow:0 2px 8px rgba(60,50,40,.05)}
+.ai-msg.user{background:#171717;color:#fff;border-bottom-right-radius:.25rem;align-self:flex-end}
+
+/* ====== INBOX ====== */
+#inboxDetailPane{display:none}
+#inboxPane.show-detail #inboxListPane{display:none}
+#inboxPane.show-detail #inboxDetailPane{display:flex;flex-direction:column}
+@media (min-width:1024px){
+  #inboxListPane{display:block !important}
+  #inboxDetailPane{display:flex !important;flex-direction:column}
+}
+
+/* ====== TAB SHOP & PROFILE ====== */
+.cat-tab,.ptab{background:rgba(255,255,255,.7);color:#57534e;border:1px solid #fff}
+.cat-tab:hover,.ptab:hover{background:#fff}
+.cat-tab.active,.ptab.active{background:#171717 !important;color:#fff !important;border-color:#171717;box-shadow:0 6px 18px rgba(23,23,23,.22)}
+
+/* ====== FAQ ====== */
+details.faq{background:rgba(255,255,255,.7);border:1px solid #fff;border-radius:1rem;padding:1rem 1.25rem}
+details.faq summary{cursor:pointer;font-weight:700;font-size:.8rem;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:1rem}
+details.faq summary::-webkit-details-marker{display:none}
+details.faq summary i{transition:transform .2s;flex-shrink:0}
+details.faq[open] summary i{transform:rotate(45deg)}
+details.faq p{margin-top:.75rem;font-size:.75rem;color:#57534e;line-height:1.6}
+
+/* ====== KALENDER ====== */
+#calGridDays{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:.35rem}
+#calGridDays>div{min-height:44px;padding:.45rem .2rem;border-radius:.9rem;text-align:center;cursor:pointer}
+
+/* ====== QRIS LOADER: titik tiga berputar (orbit) ====== */
+.orbit-loader{position:relative;width:3rem;height:3rem;animation:spin 1.1s linear infinite;flex-shrink:0}
+.orbit-loader span{position:absolute;top:50%;left:50%;width:.6rem;height:.6rem;margin:-0.3rem;border-radius:9999px;background:#171717}
+.orbit-loader span:nth-child(1){transform:rotate(0deg) translate(1.15rem)}
+.orbit-loader span:nth-child(2){transform:rotate(120deg) translate(1.15rem)}
+.orbit-loader span:nth-child(3){transform:rotate(240deg) translate(1.15rem)}
+@keyframes spin{to{transform:rotate(360deg)}}
+html.theme-dark .orbit-loader span{background:#f5f5f5}
+
+@media (max-width:640px){
+  body{padding:.75rem}
+  .glass-panel,.glass-card{border-radius:1.25rem}
+  header.glass-panel{padding:.75rem}
+  #pageSubtitle{line-height:1.45}
+  #notificationDropdown{position:fixed;left:.75rem;right:.75rem;top:5.25rem;width:auto;margin-top:0}
+  #aiChatWidgetContainer{right:.75rem;bottom:.75rem}
+  #aiChatDrawer{width:100%;max-width:100%;height:min(70vh,540px)}
+  .toast-stack{right:.75rem;bottom:5.5rem;width:calc(100vw - 1.5rem)}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;scroll-behavior:auto !important;transition-duration:.01ms !important}
+}
+</style>
+<link rel="stylesheet" href="fx/fx.css">
+</head>
+<body class="p-3 sm:p-6 text-neutral-800 antialiased relative selection:bg-neutral-900 selection:text-white">
+
+<div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div><div class="blob blob-4"></div>
+<div id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+<div class="max-w-[1440px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+  <!-- ================= SIDEBAR ================= -->
+  <aside id="sidebarNav" class="lg:col-span-3 xl:col-span-2 glass-panel rounded-3xl p-5 flex flex-col justify-between lg:min-h-[calc(100vh-3rem)]">
+    <div>
+      <div class="flex items-center justify-between mb-8 px-2 py-2">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('overview')">
+          <div class="w-10 h-10 rounded-2xl bg-neutral-900 p-0.5 shadow-md flex items-center justify-center">
+            <div class="w-full h-full bg-neutral-800 rounded-[14px] flex items-center justify-center"><i class="fa-solid fa-server text-white text-base"></i></div>
+          </div>
+          <div>
+            <h1 class="font-black text-lg tracking-tight text-neutral-900 uppercase">ANDRI STORE</h1>
+            <p class="text-[10px] text-neutral-400 font-semibold tracking-wider">CONSOLE & SHOP</p>
+          </div>
+        </div>
+        <button onclick="toggleMobileSidebar()" class="lg:hidden text-neutral-500 hover:text-neutral-900 p-2" aria-label="Tutup menu"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div class="space-y-6">
+        <div>
+          <p class="text-[10px] font-bold text-neutral-400 tracking-widest uppercase px-3 mb-2">MENU</p>
+          <nav class="space-y-1">
+            <button onclick="switchTab('overview')" id="nav-overview" class="nav-link glass-pill-dark w-full px-4 py-3 rounded-2xl flex items-center justify-between font-semibold text-sm text-left">
+              <span class="flex items-center gap-3"><i class="fa-solid fa-house text-base"></i><span>Overview</span></span>
+            </button>
+            <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-link w-full px-4 py-3 rounded-2xl flex items-center justify-between font-semibold text-sm text-neutral-600 hover:bg-white/60 text-left">
+              <span class="flex items-center gap-3"><i class="fa-solid fa-chart-line text-base"></i><span>Analytics</span></span>
+            </button>
+            <button onclick="switchTab('shop')" id="nav-shop" class="nav-link w-full px-4 py-3 rounded-2xl flex items-center justify-between font-semibold text-sm text-neutral-600 hover:bg-white/60 text-left">
+              <span class="flex items-center gap-3"><i class="fa-solid fa-store text-base"></i><span>SHOP</span></span>
+              <span class="text-[10px] bg-amber-200 text-amber-900 font-extrabold px-2 py-0.5 rounded-full">HOT</span>
+            </button>
+            <button onclick="switchTab('team')" id="nav-team" class="nav-link w-full px-4 py-3 rounded-2xl flex items-center justify-between font-semibold text-sm text-neutral-600 hover:bg-white/60 text-left">
+              <span class="flex items-center gap-3"><i class="fa-solid fa-user-gear text-base"></i><span>Profile</span></span>
+              <span id="navUserCount" class="text-[10px] bg-neutral-900 text-white font-bold px-2 py-0.5 rounded-full">12</span>
+            </button>
+            <button onclick="switchTab('inbox')" id="nav-inbox" class="nav-link w-full px-4 py-3 rounded-2xl flex items-center justify-between font-semibold text-sm text-neutral-600 hover:bg-white/60 text-left">
+              <span class="flex items-center gap-3"><i class="fa-regular fa-envelope text-base"></i><span>Inbox</span></span>
+              <span id="inboxBadgeCount" class="bg-neutral-900 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">3</span>
+            </button>
+            <button onclick="switchTab('calendar')" id="nav-calendar" class="nav-link w-full px-4 py-3 rounded-2xl flex items-center justify-between font-semibold text-sm text-neutral-600 hover:bg-white/60 text-left">
+              <span class="flex items-center gap-3"><i class="fa-regular fa-calendar text-base"></i><span>Calendar</span></span>
+            </button>
+          </nav>
+        </div>
+        <div>
+          <p class="text-[10px] font-bold text-neutral-400 tracking-widest uppercase px-3 mb-2">GENERAL</p>
+          <nav class="space-y-1">
+            <button onclick="switchTab('settings')" id="nav-settings" class="nav-link w-full px-4 py-3 rounded-2xl flex items-center justify-between font-semibold text-sm text-neutral-600 hover:bg-white/60 text-left">
+              <span class="flex items-center gap-3"><i class="fa-solid fa-gear text-base"></i><span>Settings</span></span>
+            </button>
+            <button onclick="switchTab('help')" id="nav-help" class="nav-link w-full px-4 py-3 rounded-2xl flex items-center justify-between font-semibold text-sm text-neutral-600 hover:bg-white/60 text-left">
+              <span class="flex items-center gap-3"><i class="fa-regular fa-circle-question text-base"></i><span>Help & Support</span></span>
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <div class="pt-6 border-t border-neutral-200/80">
+      <div class="glass-card rounded-2xl p-3 flex items-center justify-between cursor-pointer hover:shadow-md transition-all" onclick="switchTab('team')">
+        <div class="flex items-center gap-3 overflow-hidden">
+          <img id="sidebarUserAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" onerror="avatarFallback(this)" alt="Avatar" class="w-9 h-9 rounded-xl object-cover border border-white">
+          <div class="truncate">
+            <p id="sidebarUserName" class="text-xs font-bold text-neutral-900 truncate">Alex Morgan</p>
+            <p id="sidebarUserSub" class="text-[10px] text-neutral-400 truncate">alex@andristore.co</p>
+          </div>
+        </div>
+        <i class="fa-solid fa-arrow-right-to-bracket text-neutral-400 text-xs ml-1"></i>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN ================= -->
+  <main class="lg:col-span-9 xl:col-span-10 space-y-6">
+
+    <header class="glass-panel rounded-3xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+        <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 bg-white/80 rounded-2xl border border-white text-neutral-800 hover:bg-white" aria-label="Buka menu"><i class="fa-solid fa-bars text-lg"></i></button>
+        <div>
+          <h2 id="pageTitle" class="text-xl sm:text-2xl font-black text-neutral-900 tracking-tight">Overview</h2>
+          <p id="pageSubtitle" class="text-xs text-neutral-500">Selamat Datang di ANDRI STORE — pantau performa server & toko Anda.</p>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
+        <div class="relative flex-1 sm:flex-none sm:w-64">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-xs"></i>
+          <input id="globalSearchInput" type="text" onkeyup="handleSearch(event)" enterkeyhint="search" placeholder="Cari produk, panel, bot, jasa..." class="w-full pl-9 pr-4 py-2 bg-white/80 border border-neutral-200/80 rounded-2xl text-xs font-medium placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-800 transition-all">
+        </div>
+        <div class="relative">
+          <button onclick="toggleNotificationMenu(event)" id="notifToggleBtn" aria-label="Notifikasi" class="w-10 h-10 rounded-2xl bg-white/80 border border-neutral-200/80 flex items-center justify-center text-neutral-700 hover:text-neutral-900 hover:bg-white transition-all shadow-sm">
+            <i class="fa-regular fa-bell text-sm"></i>
+            <span id="notifDot" class="absolute top-2 right-2 w-2 h-2 bg-emerald-500 rounded-full"></span>
+          </button>
+          <div id="notificationDropdown" class="hidden absolute right-0 mt-3 w-80 glass-panel bg-white/95 rounded-2xl p-4 shadow-xl border border-white z-50 animate-scaleUp">
+            <div class="flex items-center justify-between border-b border-neutral-200 pb-2 mb-3">
+              <h4 class="font-bold text-xs text-neutral-900">Notifikasi Terkini</h4>
+              <span id="notifTargetUser" class="text-[10px] font-bold bg-neutral-100 text-neutral-800 px-2 py-0.5 rounded-full border border-neutral-200">User: Admin</span>
+            </div>
+            <div class="space-y-1 text-xs" id="notifListContainer"></div>
+            <button onclick="markAllNotifRead()" class="w-full mt-3 py-2 text-[11px] font-bold text-neutral-600 bg-white/70 hover:bg-white border border-neutral-200 rounded-xl transition-all"><i class="fa-solid fa-check-double mr-1"></i> Tandai semua dibaca</button>
+          </div>
+        </div>
+        <button onclick="toggleAiAssistantDrawer()" class="w-10 h-10 rounded-2xl bg-neutral-900 text-white flex items-center justify-center hover:bg-neutral-800 transition-all shadow-sm" title="Andri AI Assistant" aria-label="AI Assistant"><i class="fa-solid fa-robot text-sm"></i></button>
+        <button onclick="toggleTheme()" id="themeToggleBtn" class="w-10 h-10 rounded-2xl bg-white/80 border border-neutral-200/80 flex items-center justify-center text-neutral-700 hover:text-neutral-900 hover:bg-white transition-all shadow-sm" title="Ganti tema" aria-label="Ganti tema"><i class="fa-solid fa-moon text-sm"></i></button>
+        <button onclick="switchTab('settings')" class="w-10 h-10 rounded-2xl bg-white/80 border border-neutral-200/80 flex items-center justify-center text-neutral-700 hover:text-neutral-900 hover:bg-white transition-all shadow-sm" aria-label="Pengaturan"><i class="fa-solid fa-gear text-sm"></i></button>
+        <button onclick="switchTab('team')" class="w-10 h-10 rounded-2xl overflow-hidden border border-white shadow-sm hover:ring-2 hover:ring-neutral-800 transition-all" aria-label="Profil saya"><img id="headerUserAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80" onerror="avatarFallback(this)" alt="User Avatar" class="w-full h-full object-cover"></button>
+      </div>
+    </header>
+
+    <!-- ============ VIEW: OVERVIEW ============ -->
+    <div id="view-overview" class="page-view active space-y-6">
+      <div id="maintenanceBanner" class="hidden glass-panel rounded-3xl p-4 bg-amber-100/70 border-amber-200 flex items-center gap-3">
+        <div class="w-10 h-10 rounded-2xl bg-amber-200 text-amber-800 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-black text-amber-900">Mode Maintenance Aktif</p>
+          <p class="text-[11px] text-amber-800">Order server baru sementara tidak diproses. Hubungi admin untuk info lebih lanjut.</p>
+        </div>
+        <button onclick="toggleMaintenance()" class="admin-only px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white text-[11px] font-bold rounded-xl transition-all flex-shrink-0">Matikan</button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="glass-card rounded-3xl p-5 border border-white">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-neutral-500">Pendapatan</span>
+            <div class="w-10 h-10 rounded-2xl glass-icon-box flex items-center justify-center text-neutral-900"><i class="fa-solid fa-wallet text-lg"></i></div>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">Rp 48.239.000</h3>
+          <div class="flex items-center gap-1.5 mt-2 text-xs font-bold text-neutral-800"><i class="fa-solid fa-arrow-trend-up text-emerald-600"></i><span>+12.5%</span><span class="text-neutral-400 font-normal">vs bulan lalu</span></div>
+        </div>
+        <div class="glass-card rounded-3xl p-5 border border-white">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-neutral-500">Runtime VPS</span>
+            <div class="w-10 h-10 rounded-2xl glass-icon-box flex items-center justify-center text-neutral-900"><i class="fa-solid fa-clock text-lg"></i></div>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">99.98%</h3>
+          <div class="flex items-center gap-1.5 mt-2 text-xs font-bold text-neutral-800"><i class="fa-solid fa-bolt text-amber-600"></i><span>45 Hari Nonstop</span><span class="text-neutral-400 font-normal">Active Node</span></div>
+        </div>
+        <div class="glass-card rounded-3xl p-5 border border-white">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-neutral-500">Server Online</span>
+            <div class="w-10 h-10 rounded-2xl glass-icon-box flex items-center justify-center text-neutral-900"><i class="fa-solid fa-server text-lg"></i></div>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">24 Server</h3>
+          <div class="flex items-center gap-1.5 mt-2 text-xs font-bold text-emerald-700"><i class="fa-solid fa-circle-check"></i><span>100% Operational</span><span class="text-neutral-400 font-normal">Pterodactyl</span></div>
+        </div>
+        <div class="glass-card rounded-3xl p-5 border border-white">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-xs font-semibold text-neutral-500">Server Offline</span>
+            <div class="w-10 h-10 rounded-2xl glass-icon-box flex items-center justify-center text-neutral-900"><i class="fa-solid fa-triangle-exclamation text-lg"></i></div>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">2 Server</h3>
+          <div class="flex items-center gap-1.5 mt-2 text-xs font-bold text-neutral-600"><i class="fa-solid fa-wrench"></i><span>Maintenance</span><span class="text-neutral-400 font-normal">Scheduled</span></div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 glass-panel rounded-3xl p-6">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-6">
+            <div>
+              <h3 class="text-lg font-bold text-neutral-900">Traffic Overview Server & Panel</h3>
+              <p class="text-xs text-neutral-400 mt-0.5">Monitoring request & koneksi harian pelanggan ANDRI STORE</p>
+            </div>
+            <select id="trafficRange" onchange="updateChartData(this.value)" class="bg-white/80 border border-neutral-300 text-xs font-semibold text-neutral-700 rounded-2xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-neutral-800 cursor-pointer">
+              <option value="30">Last 30 days</option>
+              <option value="7">Last 7 days</option>
+              <option value="365">This Year</option>
+            </select>
+          </div>
+          <div class="h-64 sm:h-72 w-full"><canvas id="trafficChart"></canvas></div>
+        </div>
+        <div class="lg:col-span-4 glass-panel rounded-3xl p-6 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4 pb-3 border-b border-neutral-200">
+              <h3 class="text-lg font-bold text-neutral-900">List User Active</h3>
+              <span id="activeUserCountBadge" class="text-xs bg-neutral-900 text-white font-bold px-2.5 py-1 rounded-full">10 User</span>
+            </div>
+            <div class="space-y-3" id="overviewUserList"></div>
+          </div>
+          <button onclick="switchTab('team')" class="mt-4 w-full py-2.5 bg-neutral-900 text-white hover:bg-neutral-800 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-2 shadow-sm">
+            <span>Lihat Semua User</span><i class="fa-solid fa-arrow-right text-[10px]"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: ANALYTICS ============ -->
+    <div id="view-analytics" class="page-view space-y-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div class="glass-card rounded-3xl p-5 border border-white"><span class="text-xs text-neutral-400 font-semibold">Runtime VPS</span><h4 class="text-2xl font-black text-neutral-900 mt-1">99.98%</h4><p class="text-xs text-emerald-700 mt-1 font-bold"><i class="fa-solid fa-circle text-[8px]"></i> High Speed Node</p></div>
+        <div class="glass-card rounded-3xl p-5 border border-white"><span class="text-xs text-neutral-400 font-semibold">Total Server</span><h4 class="text-2xl font-black text-neutral-900 mt-1">26 Server</h4><p class="text-xs text-neutral-500 mt-1">24 Online / 2 Maintenance</p></div>
+        <div class="glass-card rounded-3xl p-5 border border-white"><span class="text-xs text-neutral-400 font-semibold">Total Pendapatan</span><h4 class="text-2xl font-black text-neutral-900 mt-1">Rp 48.239.000</h4><p class="text-xs text-emerald-700 mt-1 font-bold"><i class="fa-solid fa-arrow-up"></i> Terverifikasi System</p></div>
+        <div class="glass-card rounded-3xl p-5 border border-white"><span class="text-xs text-neutral-400 font-semibold">CPU & RAM Usage</span><h4 class="text-xl sm:text-2xl font-black text-neutral-900 mt-1">CPU 42% • RAM 57%</h4><p class="text-xs text-emerald-700 mt-1 font-semibold">18.4 GB / 32 GB RAM Active</p></div>
+      </div>
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 glass-panel rounded-3xl p-6">
+          <h3 class="text-lg font-bold text-neutral-900 mb-1">Traffics & Bandwidth Usage (MB/s)</h3>
+          <p class="text-xs text-neutral-400 mb-4">Statistik beban bandwidth harian node server</p>
+          <div class="h-64 w-full"><canvas id="analyticsLineChart"></canvas></div>
+        </div>
+        <div class="lg:col-span-4 glass-panel rounded-3xl p-6">
+          <h3 class="text-lg font-bold text-neutral-900 mb-1">Distribusi Resource Node</h3>
+          <p class="text-xs text-neutral-400 mb-4">Alokasi beban kerja server ANDRI STORE</p>
+          <div class="h-52 w-full relative flex items-center justify-center"><canvas id="analyticsPieChart"></canvas></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: SHOP ============ -->
+    <div id="view-shop" class="page-view space-y-6">
+      <div class="glass-panel rounded-3xl p-6 bg-gradient-to-r from-neutral-200/50 via-amber-100/30 to-neutral-200/50 border border-white/80 shadow-sm relative overflow-hidden">
+        <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 relative z-10">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 text-white font-bold text-xs mb-2">
+              <i class="fa-solid fa-wand-magic-sparkles text-amber-300"></i><span>Katalog Resmi Service & Product</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-black text-neutral-900"><span id="timeGreetingText">Selamat Pagi</span>! Lihat-lihat Shop ANDRI STORE 🛍️</h3>
+            <p class="text-neutral-600 text-xs sm:text-sm mt-1 max-w-xl">Dapatkan Panel Pterodactyl berkecepatan tinggi, Script Bot WhatsApp & Telegram, serta Jasa Pembuatan Website Profesional.</p>
+          </div>
+          <button onclick="openAdminProductModal('pterodactyl')" class="admin-only px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-2 whitespace-nowrap">
+            <i class="fa-solid fa-plus-circle"></i><span>Tambah Produk Custom (Admin)</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <button onclick="filterShopCategory('all')" id="tab-cat-all" class="cat-tab active px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap">Semua Produk</button>
+        <button onclick="filterShopCategory('pterodactyl')" id="tab-cat-pterodactyl" class="cat-tab px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-server mr-1.5"></i>Panel Pterodactyl</button>
+        <button onclick="filterShopCategory('bot-wa')" id="tab-cat-bot-wa" class="cat-tab px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap"><i class="fa-brands fa-whatsapp text-emerald-600 mr-1.5"></i>Script Bot WA</button>
+        <button onclick="filterShopCategory('bot-tele')" id="tab-cat-bot-tele" class="cat-tab px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap"><i class="fa-brands fa-telegram text-sky-600 mr-1.5"></i>Script Bot Telegram</button>
+        <button onclick="filterShopCategory('web-dev')" id="tab-cat-web-dev" class="cat-tab px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-code mr-1.5"></i>Jasa Website</button>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <h4 id="shopSectionTitle" class="font-black text-lg text-neutral-900 flex items-center gap-2"></h4>
+          <p id="shopSectionMeta" class="text-xs text-neutral-400 mt-0.5"></p>
+        </div>
+        <div id="shopSearchChip" class="hidden items-center gap-2 text-xs font-bold bg-amber-100 text-amber-900 px-3 py-1.5 rounded-full w-fit">
+          <i class="fa-solid fa-magnifying-glass text-[10px]"></i><span id="shopSearchChipText"></span>
+          <button onclick="clearSearch()" class="hover:text-amber-700" aria-label="Hapus pencarian"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+        </div>
+      </div>
+
+      <div id="shopProductsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 items-stretch"></div>
+
+      <div id="orderHistorySection" class="hidden glass-panel rounded-3xl p-6">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-neutral-200">
+          <div>
+            <h4 class="font-black text-lg text-neutral-900 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-neutral-900"></i> Riwayat Pesanan</h4>
+            <p class="text-xs text-neutral-400 mt-0.5">Pesanan tersimpan di perangkat ini (localStorage)</p>
+          </div>
+          <div class="flex items-center gap-3">
+            <span id="orderHistoryCount" class="text-xs bg-neutral-900 text-white font-bold px-2.5 py-1 rounded-full">0</span>
+            <button onclick="clearOrders()" class="admin-only text-xs font-bold text-neutral-500 hover:text-red-500 transition-colors"><i class="fa-regular fa-trash-can mr-1"></i>Hapus semua</button>
+          </div>
+        </div>
+        <div id="orderHistoryList" class="space-y-3"></div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: PROFILE (admin & user) ============ -->
+    <div id="view-team" class="page-view space-y-6">
+
+      <div class="glass-panel rounded-3xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-3">
+          <div id="roleIcon" class="w-11 h-11 rounded-2xl bg-neutral-900 text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-user-shield"></i></div>
+          <div>
+            <p class="text-sm font-black text-neutral-900">Mode Akses: <span id="roleLabel">Admin</span></p>
+            <p class="text-[11px] text-neutral-400" id="roleDesc">Akses penuh: kelola user, produk & sistem.</p>
+          </div>
+        </div>
+        <div class="flex bg-white/70 border border-neutral-200 rounded-2xl p-1">
+          <button onclick="switchRole('admin')" id="roleBtnAdmin" class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-neutral-900 text-white shadow-md"><i class="fa-solid fa-user-shield mr-1.5"></i>Admin</button>
+          <button onclick="switchRole('user')" id="roleBtnUser" class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all text-neutral-500 hover:text-neutral-900"><i class="fa-solid fa-user mr-1.5"></i>User</button>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+        <button onclick="switchProfileTab('profil')" id="ptab-profil" class="ptab active px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-id-badge mr-1.5"></i>Profil Saya</button>
+        <button onclick="switchProfileTab('users')" id="ptab-users" class="admin-only ptab px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap">
+          <i class="fa-solid fa-users mr-1.5"></i>Manajemen User <span id="userCountBadge" class="text-[9px] bg-amber-200 text-amber-900 font-extrabold px-1.5 py-0.5 rounded-full">12</span>
+        </button>
+        <button onclick="switchProfileTab('admin')" id="ptab-admin" class="admin-only ptab px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap"><i class="fa-solid fa-sliders mr-1.5"></i>Panel Admin</button>
+      </div>
+
+      <!-- SUB-TAB 1: PROFIL SAYA -->
+      <div id="pcontent-profil" class="admin-tab-content active space-y-6">
+        <div class="glass-panel rounded-3xl p-6 flex flex-col md:flex-row items-center md:items-start gap-6">
+          <img id="teamAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" onerror="avatarFallback(this)" alt="Foto profil" class="w-24 h-24 rounded-3xl object-cover border-4 border-white shadow-lg flex-shrink-0">
+          <div class="flex-1 text-center md:text-left min-w-0">
+            <h3 id="teamName" class="text-2xl font-black text-neutral-900">Alex Morgan</h3>
+            <p id="teamEmail" class="text-xs text-neutral-400 font-semibold mt-0.5">alex@andristore.co</p>
+            <div class="flex flex-wrap justify-center md:justify-start gap-2 mt-3">
+              <span id="teamRoleBadge" class="text-[10px] font-bold bg-neutral-900 text-white px-3 py-1 rounded-full uppercase">Admin</span>
+              <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full"><i class="fa-solid fa-shield-halved mr-1"></i>Verified</span>
+              <span class="text-[10px] font-bold bg-amber-100 text-amber-900 px-3 py-1 rounded-full"><i class="fa-solid fa-crown mr-1"></i>Member Gold</span>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mt-5 max-w-md mx-auto md:mx-0">
+              <div class="glass-card rounded-2xl p-3 text-center"><p id="statCustomers" class="text-lg font-black text-neutral-900">10</p><p class="text-[10px] text-neutral-400 font-bold">PELANGGAN</p></div>
+              <div class="glass-card rounded-2xl p-3 text-center"><p class="text-lg font-black text-neutral-900">26</p><p class="text-[10px] text-neutral-400 font-bold">SERVER</p></div>
+              <div class="glass-card rounded-2xl p-3 text-center"><p class="text-lg font-black text-neutral-900">4.9</p><p class="text-[10px] text-neutral-400 font-bold">RATING</p></div>
+            </div>
+            <button onclick="switchTab('settings')" class="mt-5 px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold shadow-md transition-all"><i class="fa-solid fa-pen-to-square mr-1.5"></i>Edit Profil</button>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-6">
+          <h4 class="font-black text-lg text-neutral-900 mb-1 flex items-center gap-2"><i class="fa-solid fa-clock-rotate-left text-neutral-900"></i> Aktivitas Terakhir</h4>
+          <p class="text-xs text-neutral-400 mb-4">5 aktivitas terbaru pada akun & sistem.</p>
+          <div id="miniActivity" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 2: MANAJEMEN USER -->
+      <div id="pcontent-users" class="admin-tab-content space-y-6">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="glass-card rounded-2xl p-4"><p id="ustatTotal" class="text-xl font-black text-neutral-900">0</p><p class="text-[10px] text-neutral-400 font-bold mt-0.5">TOTAL USER</p></div>
+          <div class="glass-card rounded-2xl p-4"><p id="ustatActive" class="text-xl font-black text-emerald-700">0</p><p class="text-[10px] text-neutral-400 font-bold mt-0.5">AKTIF</p></div>
+          <div class="glass-card rounded-2xl p-4"><p id="ustatSuspended" class="text-xl font-black text-red-600">0</p><p class="text-[10px] text-neutral-400 font-bold mt-0.5">SUSPENDED</p></div>
+          <div class="glass-card rounded-2xl p-4"><p id="ustatAdmins" class="text-xl font-black text-amber-700">0</p><p class="text-[10px] text-neutral-400 font-bold mt-0.5">ADMIN & OWNER</p></div>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 mb-5">
+            <div class="relative flex-1 max-w-xs">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 text-xs"></i>
+              <input id="userSearch" type="text" onkeyup="renderUsers()" placeholder="Cari username / email..." class="w-full pl-9 pr-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800">
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <select id="userRoleFilter" onchange="renderUsers()" class="px-3 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 cursor-pointer">
+                <option value="all">Semua Role</option><option value="user">User</option><option value="admin">Admin</option><option value="owner">Owner</option>
+              </select>
+              <select id="userStatusFilter" onchange="renderUsers()" class="px-3 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 cursor-pointer">
+                <option value="all">Semua Status</option><option value="active">Aktif</option><option value="suspended">Suspended</option>
+              </select>
+              <button onclick="openUserModal()" class="px-4 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold shadow-md transition-all whitespace-nowrap"><i class="fa-solid fa-user-plus mr-1.5"></i>Tambah User</button>
+            </div>
+          </div>
+          <div id="usersList" class="space-y-2"></div>
+          <div id="usersEmpty" class="hidden text-center py-10">
+            <i class="fa-solid fa-users-slash text-3xl text-neutral-300"></i>
+            <p class="font-bold text-sm text-neutral-700 mt-2">User tidak ditemukan</p>
+            <p class="text-xs text-neutral-400 mt-1">Coba ubah kata kunci atau filter.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUB-TAB 3: PANEL ADMIN -->
+      <div id="pcontent-admin" class="admin-tab-content space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <button onclick="openBroadcastModal()" class="glass-card rounded-3xl p-5 text-left hover:shadow-lg hover:border-neutral-900 transition-all">
+            <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3"><i class="fa-solid fa-bullhorn"></i></div>
+            <p class="font-bold text-sm text-neutral-900">Broadcast Notifikasi</p>
+            <p class="text-[11px] text-neutral-400 mt-1">Kirim pengumuman ke semua user.</p>
+          </button>
+          <div class="glass-card rounded-3xl p-5">
+            <div class="flex items-center justify-between mb-3">
+              <div class="w-11 h-11 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center"><i class="fa-solid fa-screwdriver-wrench"></i></div>
+              <span id="maintStatusChip" class="text-[10px] font-extrabold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">NONAKTIF</span>
+            </div>
+            <p class="font-bold text-sm text-neutral-900">Mode Maintenance</p>
+            <p class="text-[11px] text-neutral-400 mt-1 mb-3">Hentikan order server baru sementara.</p>
+            <button onclick="toggleMaintenance()" id="maintToggleBtn" class="w-full py-2 bg-white/80 border border-neutral-200 hover:bg-white text-neutral-700 rounded-xl text-[11px] font-bold transition-all"><i class="fa-solid fa-toggle-off mr-1.5"></i>Aktifkan Maintenance</button>
+          </div>
+          <button onclick="backupData()" class="glass-card rounded-3xl p-5 text-left hover:shadow-lg hover:border-neutral-900 transition-all">
+            <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center mb-3"><i class="fa-solid fa-database"></i></div>
+            <p class="font-bold text-sm text-neutral-900">Backup Data</p>
+            <p class="text-[11px] text-neutral-400 mt-1">Unduh semua data sebagai JSON.</p>
+          </button>
+          <button onclick="resetData()" class="glass-card rounded-3xl p-5 text-left hover:border-red-300 hover:shadow-lg transition-all">
+            <div class="w-11 h-11 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mb-3"><i class="fa-solid fa-rotate-left"></i></div>
+            <p class="font-bold text-sm text-neutral-900">Reset Semua Data</p>
+            <p class="text-[11px] text-neutral-400 mt-1">Kembalikan ke pengaturan default.</p>
+          </button>
+        </div>
+
+        <div class="glass-panel rounded-3xl p-6">
+          <div class="flex items-center justify-between mb-1">
+            <h4 class="font-black text-lg text-neutral-900 flex items-center gap-2"><i class="fa-solid fa-list-check text-neutral-900"></i> Log Aktivitas Admin</h4>
+            <span class="text-[10px] font-bold bg-neutral-100 text-neutral-600 px-2.5 py-1 rounded-full border border-neutral-200">20 terakhir</span>
+          </div>
+          <p class="text-xs text-neutral-400 mb-4">Semua aksi admin (produk, user, sistem) tercatat di sini.</p>
+          <div id="activityLog" class="space-y-2 max-h-[26rem] overflow-y-auto pr-1"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: INBOX ============ -->
+    <div id="view-inbox" class="page-view space-y-6">
+      <div id="inboxPane" class="glass-panel rounded-3xl p-4 sm:p-6 grid lg:grid-cols-12 gap-4 lg:gap-6">
+        <div id="inboxListPane" class="lg:col-span-5 lg:border-r lg:border-neutral-200 lg:pr-6">
+          <div class="flex items-center justify-between mb-4 pb-3 border-b border-neutral-200">
+            <h3 class="text-lg font-bold text-neutral-900">Pesan Masuk</h3>
+            <div class="flex items-center gap-2">
+              <span id="inboxUnreadCount" class="text-xs bg-neutral-900 text-white font-bold px-2.5 py-1 rounded-full">3 baru</span>
+              <button onclick="markAllInboxRead()" class="text-[10px] font-bold text-neutral-500 hover:text-neutral-900 bg-white/70 border border-neutral-200 px-2.5 py-1 rounded-full transition-all">Tandai dibaca</button>
+            </div>
+          </div>
+          <div id="inboxList" class="space-y-2"></div>
+        </div>
+        <div id="inboxDetailPane" class="lg:col-span-7 min-w-0"><div id="inboxDetail"></div></div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: CALENDAR ============ -->
+    <div id="view-calendar" class="page-view space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-8 glass-panel rounded-3xl p-6">
+          <div class="flex items-center justify-between mb-5">
+            <h3 id="calMonthLabel" class="text-lg font-bold text-neutral-900 capitalize">—</h3>
+            <div class="flex items-center gap-2">
+              <button onclick="calToday()" class="px-3 py-1.5 text-[11px] font-bold bg-white/70 hover:bg-white border border-neutral-200 rounded-xl transition-all">Hari ini</button>
+              <button onclick="calShift(-1)" class="w-9 h-9 rounded-xl bg-white/70 hover:bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 transition-all" aria-label="Bulan sebelumnya"><i class="fa-solid fa-chevron-left text-xs"></i></button>
+              <button onclick="calShift(1)" class="w-9 h-9 rounded-xl bg-white/70 hover:bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 transition-all" aria-label="Bulan berikutnya"><i class="fa-solid fa-chevron-right text-xs"></i></button>
+            </div>
+          </div>
+          <div class="grid grid-cols-7 gap-1.5 sm:gap-2 text-center mb-2">
+            <span class="text-[10px] font-bold text-neutral-400">MIN</span><span class="text-[10px] font-bold text-neutral-400">SEN</span><span class="text-[10px] font-bold text-neutral-400">SEL</span><span class="text-[10px] font-bold text-neutral-400">RAB</span><span class="text-[10px] font-bold text-neutral-400">KAM</span><span class="text-[10px] font-bold text-neutral-400">JUM</span><span class="text-[10px] font-bold text-neutral-400">SAB</span>
+          </div>
+          <div id="calGridDays"></div>
+        </div>
+        <div class="lg:col-span-4 glass-panel rounded-3xl p-6">
+          <h3 class="text-lg font-bold text-neutral-900 mb-1">Agenda</h3>
+          <p id="calSelectedLabel" class="text-xs text-neutral-400 font-semibold capitalize mb-4">—</p>
+          <div id="calEventList"></div>
+          <div class="mt-4 pt-4 border-t border-neutral-200">
+            <label class="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Tambah agenda di tanggal terpilih</label>
+            <div class="flex gap-2 mt-2">
+              <input id="calEventInput" type="text" placeholder="Contoh: Maintenance node" class="flex-1 min-w-0 px-3 py-2 bg-white/80 border border-neutral-200 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-neutral-800">
+              <button onclick="addCalEvent()" class="px-3 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold transition-all" aria-label="Tambah agenda"><i class="fa-solid fa-plus"></i></button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: SETTINGS ============ -->
+    <div id="view-settings" class="page-view space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="glass-panel rounded-3xl p-6">
+          <h3 class="text-lg font-bold text-neutral-900 mb-1 flex items-center gap-2"><i class="fa-solid fa-user-gear"></i> Profil Akun</h3>
+          <p class="text-xs text-neutral-400 mb-5">Data ini tampil di sidebar, header, dan halaman Profile.</p>
+          <div class="space-y-4">
+            <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Nama Lengkap</span>
+              <input id="setNama" type="text" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+            <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Email</span>
+              <input id="setEmail" type="email" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+            <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">URL Foto Avatar</span>
+              <input id="setAvatar" type="url" placeholder="https://..." class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+            <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Role Akun</span>
+              <select id="setRole" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 cursor-pointer">
+                <option value="admin">Admin</option><option value="user">User</option>
+              </select></label>
+          </div>
+        </div>
+        <div class="space-y-6">
+          <div class="glass-panel rounded-3xl p-6">
+            <h3 class="text-lg font-bold text-neutral-900 mb-1 flex items-center gap-2"><i class="fa-solid fa-palette"></i> Tampilan</h3>
+            <p class="text-xs text-neutral-400 mb-4">Tema gelap tersimpan otomatis di perangkat ini.</p>
+            <div class="flex gap-2">
+              <button onclick="setTheme('light')" id="themeBtnLight" class="px-4 py-2 rounded-2xl text-xs font-bold transition-all"><i class="fa-solid fa-sun mr-1.5"></i>Terang</button>
+              <button onclick="setTheme('dark')" id="themeBtnDark" class="px-4 py-2 rounded-2xl text-xs font-bold transition-all"><i class="fa-solid fa-moon mr-1.5"></i>Gelap</button>
+            </div>
+            <div class="mt-6 pt-5 border-t border-neutral-200 space-y-4">
+              <label class="flex items-center justify-between gap-4 cursor-pointer">
+                <span class="text-xs font-semibold text-neutral-700">Notifikasi pesanan baru</span>
+                <input type="checkbox" id="setNotifOrder" class="sr-only peer" checked>
+                <span class="w-11 h-6 rounded-full bg-neutral-200 peer-checked:bg-neutral-900 relative transition-colors flex-shrink-0 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5"></span>
+              </label>
+              <label class="flex items-center justify-between gap-4 cursor-pointer">
+                <span class="text-xs font-semibold text-neutral-700">Alert server & resource</span>
+                <input type="checkbox" id="setNotifServer" class="sr-only peer" checked>
+                <span class="w-11 h-6 rounded-full bg-neutral-200 peer-checked:bg-neutral-900 relative transition-colors flex-shrink-0 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-5"></span>
+              </label>
+            </div>
+          </div>
+          <div class="glass-panel rounded-3xl p-6">
+            <h3 class="text-lg font-bold text-neutral-900 mb-1 flex items-center gap-2"><i class="fa-solid fa-store"></i> Preferensi Toko</h3>
+            <p class="text-xs text-neutral-400 mb-5">Nama toko & nomor WhatsApp dipakai untuk checkout pesanan.</p>
+            <div class="space-y-4">
+              <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Nama Toko</span>
+                <input id="setStoreName" type="text" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+              <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Nomor WhatsApp Admin (format 62...)</span>
+                <input id="setWa" type="tel" placeholder="6281234567890" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button onclick="saveSettings()" class="flex-1 sm:flex-none px-6 py-3 bg-neutral-900 hover:bg-neutral-800 text-white rounded-2xl text-xs font-bold shadow-md transition-all"><i class="fa-solid fa-floppy-disk mr-1.5"></i>Simpan Semua Pengaturan</button>
+        <button onclick="resetData()" class="admin-only flex-1 sm:flex-none px-6 py-3 bg-white/80 hover:bg-red-50 hover:text-red-600 border border-neutral-200 rounded-2xl text-xs font-bold transition-all"><i class="fa-solid fa-rotate-left mr-1.5"></i>Reset Semua Data</button>
+        <button onclick="logoutDashboard()" class="flex-1 sm:flex-none px-6 py-3 bg-red-500 hover:bg-red-600 text-white rounded-2xl text-xs font-bold shadow-md transition-all"><i class="fa-solid fa-arrow-right-from-bracket mr-1.5"></i>Keluar (Logout)</button>
+      </div>
+    </div>
+
+    <!-- ============ VIEW: HELP ============ -->
+    <div id="view-help" class="page-view space-y-6">
+      <div class="glass-panel rounded-3xl p-6">
+        <h3 class="text-lg font-bold text-neutral-900 mb-1 flex items-center gap-2"><i class="fa-regular fa-circle-question"></i> Frequently Asked Questions</h3>
+        <p class="text-xs text-neutral-400 mb-5">Klik pertanyaan untuk melihat jawaban.</p>
+        <div class="space-y-3">
+          <details class="faq" open><summary>Bagaimana cara membeli produk di ANDRI STORE? <i class="fa-solid fa-plus text-neutral-400 text-xs"></i></summary><p>Buka menu <b>SHOP</b>, pilih produk, klik <b>"Bayar via QRIS"</b>, scan QR dengan e-wallet/m-banking apa pun — setelah pembayaran terdeteksi, panel dibuat otomatis dalam ± 10–30 detik. Atau gunakan checkout WhatsApp.</p></details>
+          <details class="faq"><summary>Metode pembayaran apa saja yang tersedia? <i class="fa-solid fa-plus text-neutral-400 text-xs"></i></summary><p>QRIS (semua bank & e-wallet) via Pakasir — otomatis terverifikasi tanpa konfirmasi manual.</p></details>
+          <details class="faq"><summary>Apakah panel Pterodactyl ada garansi? <i class="fa-solid fa-plus text-neutral-400 text-xs"></i></summary><p>Ya, garansi full 30 hari. Jika server down/mati di luar kendali Anda, kami ganti tanpa biaya tambahan.</p></details>
+          <details class="faq"><summary>Script bot bisa diubah / di-edit sendiri? <i class="fa-solid fa-plus text-neutral-400 text-xs"></i></summary><p>Bisa. Semua script kami full source code tanpa enkripsi, plus free update dan garansi perbaikan bug.</p></details>
+          <details class="faq"><summary>Apakah bisa refund? <i class="fa-solid fa-plus text-neutral-400 text-xs"></i></summary><p>Panel: refund penuh jika gagal aktivasi. Script & jasa website: tidak bisa di-refund, tapi garansi perbaikan/revisi tetap berlaku.</p></details>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
+        <a href="https://wa.me/6281234567890" target="_blank" rel="noopener" class="glass-card rounded-3xl p-5 hover:shadow-lg transition-all block">
+          <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3"><i class="fa-brands fa-whatsapp text-lg"></i></div>
+          <p class="font-bold text-sm text-neutral-900">WhatsApp Support</p><p class="text-[11px] text-neutral-400 mt-1">Fast response 08.00–22.00 WIB</p>
+        </a>
+        <a href="https://t.me/andristore" target="_blank" rel="noopener" class="glass-card rounded-3xl p-5 hover:shadow-lg transition-all block">
+          <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center mb-3"><i class="fa-brands fa-telegram text-lg"></i></div>
+          <p class="font-bold text-sm text-neutral-900">Telegram Channel</p><p class="text-[11px] text-neutral-400 mt-1">Info promo & update produk</p>
+        </a>
+        <a href="mailto:support@andristore.co" class="glass-card rounded-3xl p-5 hover:shadow-lg transition-all block">
+          <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3"><i class="fa-regular fa-envelope text-lg"></i></div>
+          <p class="font-bold text-sm text-neutral-900">Email Support</p><p class="text-[11px] text-neutral-400 mt-1">Balasan maks. 1×24 jam kerja</p>
+        </a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ================= MODAL: CHECKOUT PESANAN ================= -->
+<div id="orderModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="orderProductName">
+  <div class="modal-backdrop" onclick="closeModal('orderModal')"></div>
+  <div class="modal-box glass-card rounded-3xl p-6">
+    <div class="flex items-start justify-between mb-5">
+      <div class="min-w-0">
+        <p class="text-[10px] font-bold tracking-widest text-neutral-400 uppercase">Checkout Pesanan</p>
+        <h3 id="orderProductName" class="text-lg font-black text-neutral-900 mt-0.5 truncate">—</h3>
+        <p id="orderUnitPrice" class="text-xs text-neutral-500 font-semibold mt-0.5">—</p>
+      </div>
+      <button onclick="closeModal('orderModal')" class="w-9 h-9 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition-all flex-shrink-0" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="space-y-4">
+      <div class="grid grid-cols-2 gap-3">
+        <div id="orderDurationRow">
+          <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Durasi</span>
+          <select id="orderDuration" onchange="orderDurIndex=parseInt(this.value);updateOrderTotal()" class="w-full mt-1.5 px-3 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 cursor-pointer"></select>
+        </div>
+        <div>
+          <span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Jumlah</span>
+          <div class="flex items-center gap-2 mt-1.5">
+            <button onclick="changeQty(-1)" class="w-9 h-9 rounded-xl bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-100 font-bold transition-all" aria-label="Kurangi">−</button>
+            <span id="orderQty" class="flex-1 text-center text-sm font-black text-neutral-900">1</span>
+            <button onclick="changeQty(1)" class="w-9 h-9 rounded-xl bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-100 font-bold transition-all" aria-label="Tambah">+</button>
+          </div>
+        </div>
+      </div>
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Username Panel / Nama Anda</span>
+        <input id="orderCustomer" type="text" placeholder="Contoh: budi_gaming (a-z, 0-9)" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+      <div><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Metode Pembayaran</span>
+        <div id="orderMethods" class="grid grid-cols-2 gap-2 mt-1.5"></div></div>
+      <div class="bg-white/80 border border-neutral-200 rounded-2xl px-4 py-3.5 flex items-center justify-between">
+        <span class="text-xs font-bold text-neutral-600">Total Bayar</span>
+        <div class="text-right"><span id="orderTotal" class="text-lg font-black text-neutral-900">Rp 0</span><span id="orderDiscountNote" class="block text-[10px] text-emerald-600 font-bold"></span></div>
+      </div>
+      <p id="orderError" class="hidden text-xs text-red-600 font-semibold"><i class="fa-solid fa-circle-exclamation mr-1"></i><span></span></p>
+      <button onclick="submitOrder()" id="orderSubmitBtn" class="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-sm rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2">
+        <i class="fa-solid fa-qrcode text-base"></i><span>Bayar via QRIS</span>
+      </button>
+      <button onclick="submitOrderWhatsApp()" class="w-full py-2.5 bg-white/80 border border-neutral-200 hover:bg-white text-neutral-600 font-bold text-xs rounded-2xl transition-all flex items-center justify-center gap-2">
+        <i class="fa-brands fa-whatsapp text-emerald-600"></i><span>Checkout via WhatsApp</span>
+      </button>
+      <p class="text-[10px] text-neutral-400 text-center leading-relaxed">QRIS: panel dibuat OTOMATIS setelah pembayaran. WhatsApp: konfirmasi manual oleh admin.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL: QRIS CHECKOUT ================= -->
+<div id="qrisModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" onclick="closeQrisModal()"></div>
+  <div class="modal-box glass-card rounded-3xl p-6" style="max-width:26rem">
+    <div class="flex items-start justify-between mb-4">
+      <div>
+        <p class="text-[10px] font-bold tracking-widest text-neutral-400 uppercase">Pembayaran QRIS</p>
+        <h3 id="qrisTitle" class="text-lg font-black text-neutral-900 mt-0.5">Menunggu Pembayaran</h3>
+      </div>
+      <button onclick="closeQrisModal()" class="w-9 h-9 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition-all flex-shrink-0" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+
+    <!-- STATE 1: Menunggu (QR + loader titik tiga berputar) -->
+    <div id="qrisStateWaiting" class="text-center">
+      <p id="qrisProductName" class="text-xs font-bold text-neutral-700"></p>
+      <p id="qrisAmount" class="text-2xl font-black text-neutral-900 my-1"></p>
+      <div class="mx-auto w-fit bg-white rounded-3xl p-3 border border-neutral-200 shadow-sm my-3">
+        <img id="qrisImage" src="" alt="QRIS" class="w-56 h-56 object-contain">
+      </div>
+      <div class="flex items-center justify-center gap-3 my-4">
+        <div class="orbit-loader"><span></span><span></span><span></span></div>
+        <div class="text-left">
+          <p class="text-xs font-bold text-neutral-800">Mengecek pembayaran...</p>
+          <p class="text-[10px] text-neutral-400">Scan pakai e-wallet / m-banking apa pun</p>
+        </div>
+      </div>
+      <div class="flex items-center justify-between text-[11px] text-neutral-500 font-semibold bg-white/70 border border-neutral-200 rounded-2xl px-4 py-2.5">
+        <span><i class="fa-regular fa-clock mr-1.5"></i>Kedaluwarsa <b id="qrisCountdown" class="text-red-600">05:00</b></span>
+        <span class="truncate">Order: <b id="qrisOrderId"></b></span>
+      </div>
+      <button onclick="cancelQrisOrder()" class="mt-3 text-[11px] font-bold text-neutral-400 hover:text-red-500 transition-colors">Batalkan pesanan</button>
+    </div>
+
+    <!-- STATE 2: Provisioning -->
+    <div id="qrisStateProvisioning" class="hidden text-center py-6">
+      <div class="orbit-loader mx-auto"><span></span><span></span><span></span></div>
+      <p class="text-sm font-black text-neutral-900 mt-4">Pembayaran Diterima!</p>
+      <p class="text-xs text-neutral-500 mt-1">Sedang membuat panel server Anda<br>(± 10–30 detik)</p>
+    </div>
+
+    <!-- STATE 3: Sukses -->
+    <div id="qrisStateSuccess" class="hidden">
+      <div class="text-center mb-4">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-2"><i class="fa-solid fa-circle-check text-2xl"></i></div>
+        <p class="text-sm font-black text-neutral-900">Panel Berhasil Dibuat!</p>
+        <p class="text-[11px] text-neutral-400">Kredensial juga dikirim ke notifikasi 🔔 Anda.</p>
+      </div>
+      <div id="qrisCredentials" class="space-y-2"></div>
+      <button onclick="closeQrisModal()" class="w-full mt-4 py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-2xl shadow-md transition-all">Simpan & Tutup</button>
+    </div>
+
+    <!-- STATE 4: Error / kedaluwarsa -->
+    <div id="qrisStateError" class="hidden text-center py-4">
+      <div class="w-12 h-12 mx-auto rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mb-2"><i class="fa-solid fa-triangle-exclamation text-lg"></i></div>
+      <p id="qrisErrorTitle" class="text-sm font-black text-neutral-900">Waktu Habis</p>
+      <p id="qrisErrorMsg" class="text-xs text-neutral-400 mt-1 mb-4 leading-relaxed"></p>
+      <div class="flex gap-2">
+        <button onclick="retryQris()" class="flex-1 py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-bold rounded-2xl transition-all"><i class="fa-solid fa-rotate-right mr-1.5"></i>Coba Lagi</button>
+        <button onclick="closeQrisModal()" class="flex-1 py-2.5 bg-white/80 border border-neutral-200 hover:bg-white text-neutral-700 text-xs font-bold rounded-2xl transition-all">Tutup</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL: TAMBAH/EDIT USER ================= -->
+<div id="userModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" onclick="closeModal('userModal')"></div>
+  <div class="modal-box glass-card rounded-3xl p-6" style="max-width:32rem">
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <p class="text-[10px] font-bold tracking-widest text-neutral-400 uppercase">Manajemen User</p>
+        <h3 id="userModalTitle" class="text-lg font-black text-neutral-900 mt-0.5">Tambah User Baru</h3>
+      </div>
+      <button onclick="closeModal('userModal')" class="w-9 h-9 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition-all" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="space-y-4">
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Username *</span>
+        <input id="usrUsername" type="text" placeholder="contoh: budi_gaming" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Email *</span>
+        <input id="usrEmail" type="email" placeholder="user@email.com" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Produk / Panel Langganan</span>
+        <input id="usrProduct" type="text" placeholder="Panel Pterodactyl 2 GB" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Role</span>
+          <select id="usrRole" class="w-full mt-1.5 px-3 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 cursor-pointer">
+            <option value="user">User</option><option value="admin">Admin</option>
+          </select></label>
+        <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Status</span>
+          <select id="usrStatus" class="w-full mt-1.5 px-3 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 cursor-pointer">
+            <option value="active">Aktif</option><option value="suspended">Suspended</option>
+          </select></label>
+      </div>
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">URL Avatar (opsional)</span>
+        <input id="usrAvatar" type="url" placeholder="https://..." class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+      <button onclick="saveUser()" class="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-2xl shadow-md transition-all"><i class="fa-solid fa-user-plus mr-1.5"></i>Simpan User</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL: BROADCAST ================= -->
+<div id="broadcastModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" onclick="closeModal('broadcastModal')"></div>
+  <div class="modal-box glass-card rounded-3xl p-6" style="max-width:28rem">
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <p class="text-[10px] font-bold tracking-widest text-neutral-400 uppercase">Panel Admin</p>
+        <h3 class="text-lg font-black text-neutral-900 mt-0.5">Broadcast Notifikasi</h3>
+      </div>
+      <button onclick="closeModal('broadcastModal')" class="w-9 h-9 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition-all" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="space-y-4">
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Judul *</span>
+        <input id="bcTitle" type="text" placeholder="Contoh: Promo akhir bulan!" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Pesan *</span>
+        <textarea id="bcMsg" rows="3" placeholder="Tulis pengumuman untuk semua user..." class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 resize-none"></textarea></label>
+      <button onclick="sendBroadcast()" class="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-2xl shadow-md transition-all"><i class="fa-solid fa-bullhorn mr-1.5"></i>Kirim ke Semua User</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL: TAMBAH PRODUK ================= -->
+<div id="productModal" class="modal" role="dialog" aria-modal="true">
+  <div class="modal-backdrop" onclick="closeModal('productModal')"></div>
+  <div class="modal-box glass-card rounded-3xl p-6" style="max-width:32rem">
+    <div class="flex items-start justify-between mb-5">
+      <div>
+        <p class="text-[10px] font-bold tracking-widest text-neutral-400 uppercase">Mode Admin</p>
+        <h3 class="text-lg font-black text-neutral-900 mt-0.5">Tambah Produk Baru</h3>
+      </div>
+      <button onclick="closeModal('productModal')" class="w-9 h-9 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition-all" aria-label="Tutup"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="space-y-4">
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Nama Produk *</span>
+        <input id="prodName" type="text" placeholder="Contoh: Panel Pterodactyl 8 GB" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Kategori</span>
+          <select id="prodCategory" class="w-full mt-1.5 px-3 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 cursor-pointer">
+            <option value="pterodactyl">Panel Pterodactyl</option><option value="bot-wa">Script Bot WA</option><option value="bot-tele">Script Bot Telegram</option><option value="web-dev">Jasa Website</option>
+          </select></label>
+        <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Harga (Rp) *</span>
+          <input id="prodPrice" type="number" min="100" step="500" placeholder="10000" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Label Badge</span>
+          <input id="prodBadge" type="text" placeholder="Custom Node" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800"></label>
+        <label class="flex items-end gap-2 pb-1 cursor-pointer">
+          <input id="prodOneTime" type="checkbox" class="w-4 h-4 rounded accent-neutral-900">
+          <span class="text-[11px] font-semibold text-neutral-600">Bayar sekali (bukan langganan)</span>
+        </label>
+      </div>
+      <label class="block"><span class="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Fitur Produk (satu per baris)</span>
+        <textarea id="prodFeatures" rows="4" placeholder="RAM: 8192 MB Dedicated&#10;CPU: 200% Core&#10;Disk SSD: 20 GB" class="w-full mt-1.5 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-neutral-800 resize-none"></textarea></label>
+      <button onclick="saveProduct()" class="w-full py-3 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-2xl shadow-md transition-all"><i class="fa-solid fa-plus mr-1.5"></i>Simpan Produk ke Katalog</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= MODAL: KONFIRMASI ================= -->
+<div id="confirmModal" class="modal" role="alertdialog" aria-modal="true">
+  <div class="modal-backdrop" onclick="closeModal('confirmModal')"></div>
+  <div class="modal-box glass-card rounded-3xl p-6 text-center" style="max-width:24rem">
+    <div class="w-12 h-12 mx-auto rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mb-3"><i class="fa-solid fa-triangle-exclamation text-lg"></i></div>
+    <h3 id="confirmTitle" class="font-black text-neutral-900">Yakin?</h3>
+    <p id="confirmMsg" class="text-xs text-neutral-500 mt-1 mb-5 leading-relaxed"></p>
+    <div class="flex gap-3">
+      <button onclick="closeModal('confirmModal')" class="flex-1 py-2.5 bg-white/80 border border-neutral-200 hover:bg-white text-neutral-700 font-bold text-xs rounded-2xl transition-all">Batal</button>
+      <button onclick="runConfirm()" class="flex-1 py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold text-xs rounded-2xl shadow-md transition-all">Ya, Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ================= AI CHAT ================= -->
+<div id="aiChatWidgetContainer">
+  <div id="aiChatDrawer" role="dialog" aria-label="Andri AI Assistant">
+    <div class="p-4 flex items-center gap-3 border-b border-neutral-200">
+      <div class="w-9 h-9 rounded-xl bg-neutral-900 text-white flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-robot"></i></div>
+      <div class="flex-1 min-w-0">
+        <p class="font-bold text-sm text-neutral-900">Andri AI Assistant</p>
+        <p class="text-[10px] text-emerald-600 font-bold"><i class="fa-solid fa-circle text-[7px]"></i> Online — siap membantu</p>
+      </div>
+      <button onclick="toggleAiAssistantDrawer()" class="w-8 h-8 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-500 hover:text-neutral-900 transition-all" aria-label="Tutup chat"><i class="fa-solid fa-xmark text-xs"></i></button>
+    </div>
+    <div id="aiChatMessages" class="flex-1 overflow-y-auto p-4 gap-3"></div>
+    <div id="aiChatChips" class="px-4 pb-2 flex flex-wrap gap-1.5"></div>
+    <form onsubmit="sendAiMessage(event)" class="p-3 border-t border-neutral-200 flex gap-2">
+      <input id="aiChatInput" type="text" placeholder="Tulis pertanyaan..." class="flex-1 min-w-0 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-neutral-800">
+      <button type="submit" class="w-11 h-11 rounded-2xl bg-neutral-900 text-white flex items-center justify-center hover:bg-neutral-800 transition-all flex-shrink-0" aria-label="Kirim"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+    </form>
+  </div>
+  <button onclick="toggleAiAssistantDrawer()" class="w-14 h-14 rounded-2xl bg-neutral-900 text-white shadow-lg flex items-center justify-center hover:bg-neutral-800 hover:scale-105 transition-all" aria-label="Buka AI Assistant"><i class="fa-solid fa-robot text-lg"></i></button>
+</div>
+
+<div id="toastStack" class="toast-stack" aria-live="polite"></div>
+
+<script>
+/* =====================================================
+   ANDRI STORE — Console & Shop Dashboard
+   Terintegrasi: auth guard (login), QRIS otomatis (Pakasir
+   + Pterodactyl), manajemen user/admin, log aktivitas.
+   ===================================================== */
+
+/* ---------- Utility ---------- */
+const $ = id => document.getElementById(id);
+const AVATAR_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' rx='14' fill='#e7e1d3'/><circle cx='24' cy='19' r='8' fill='#a89f8e'/><path d='M8 46c3-10 9-13 16-13s13 3 16 13z' fill='#a89f8e'/></svg>");
+const esc = s => String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const formatRupiah = n => 'Rp ' + Number(n).toLocaleString('id-ID');
+const persist = (k,v) => localStorage.setItem('andri_'+k, JSON.stringify(v));
+function avatarFallback(img){ img.onerror=null; img.src=AVATAR_FALLBACK; }
+
+function showToast(msg, type='success'){
+  const icons={success:'fa-circle-check text-emerald-500',error:'fa-circle-xmark text-red-500',info:'fa-circle-info text-neutral-600'};
+  const el=document.createElement('div');
+  el.className='glass-card rounded-2xl px-4 py-3 flex items-start gap-3 shadow-lg animate-scaleUp';
+  el.innerHTML=`<i class="fa-solid ${icons[type]||icons.success} mt-0.5"></i>
+    <p class="text-xs font-semibold text-neutral-800 flex-1 leading-snug">${msg}</p>
+    <button onclick="this.parentElement.remove()" class="text-neutral-400 hover:text-neutral-700" aria-label="Tutup"><i class="fa-solid fa-xmark text-xs"></i></button>`;
+  $('toastStack').appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateY(6px)'; setTimeout(()=>el.remove(),300); },3800);
+}
+
+/* ---------- Modal helpers ---------- */
+function openModal(id){ $(id).classList.add('open'); document.body.style.overflow='hidden'; }
+function closeModal(id){
+  $(id).classList.remove('open');
+  if(!document.querySelector('.modal.open')) document.body.style.overflow='';
+}
+let pendingConfirm=null;
+function confirmAction(title,msg,cb){
+  pendingConfirm=cb; $('confirmTitle').textContent=title; $('confirmMsg').textContent=msg;
+  openModal('confirmModal');
+}
+function runConfirm(){ const cb=pendingConfirm; pendingConfirm=null; closeModal('confirmModal'); if(cb) cb(); }
+
+/* ---------- Konfigurasi ---------- */
+const API_BASE = '/api';             // ganti jika backend di domain terpisah
+const REQUIRE_LOGIN = true;          // false = mode demo tanpa harus login
+
+/* ---------- Data Default ---------- */
+const DEFAULT_PRODUCTS=[
+  {id:1,category:'pterodactyl',badge:'Starter Node',badgeClass:'bg-neutral-200 text-neutral-900',tag:'Fast Setup',tagClass:'bg-emerald-50 text-emerald-800',name:'Panel Pterodactyl 1 GB',price:3000,oneTime:false,features:['RAM: 1024 MB High Speed','CPU: 50% Core Limit','Disk SSD: 2.5 GB Space','Server Anti Delay & Lag']},
+  {id:2,category:'pterodactyl',badge:'Standard Node',badgeClass:'bg-neutral-200 text-neutral-900',tag:'Popular',tagClass:'bg-neutral-100 text-neutral-900',name:'Panel Pterodactyl 2 GB',price:5000,oneTime:false,features:['RAM: 2048 MB Dedicated','CPU: 80% Core Limit','Disk SSD: 5.0 GB Space','Garansi Full 30 Hari']},
+  {id:3,category:'pterodactyl',badge:'Pro Node',badgeClass:'bg-neutral-200 text-neutral-900',tag:'Best Seller',tagClass:'bg-amber-100 text-amber-900',name:'Panel Pterodactyl 4 GB',price:7000,oneTime:false,features:['RAM: 4096 MB Dedicated','CPU: 120% Core Limit','Disk SSD: 10 GB Space','Anti Suspend Guarantee']},
+  {id:4,category:'pterodactyl',badge:'Unlimited Max',badgeClass:'bg-neutral-900 text-white',tag:'VIP',tagClass:'bg-amber-100 text-amber-900',name:'Panel Unlimited Node',price:18000,oneTime:false,highlight:true,features:['RAM: UNLIMITED MB Node','CPU: UNLIMITED Core','Disk SSD: UNLIMITED Space','Prioritas Support 24/7']},
+  {id:5,category:'bot-wa',badge:'Bot WA',badgeClass:'bg-emerald-100 text-emerald-800',tag:'Best Seller',tagClass:'bg-amber-100 text-amber-900',name:'Script Bot WA Multi Device',price:25000,oneTime:true,features:['Full source code (No Enc)','Auto reply, downloader, stiker','Free update selamanya','Garansi perbaikan bug']},
+  {id:6,category:'bot-wa',badge:'Bot WA',badgeClass:'bg-emerald-100 text-emerald-800',tag:'Auto Store',tagClass:'bg-emerald-50 text-emerald-800',name:'Bot WA Auto Store Otomatis',price:50000,oneTime:true,features:['Jualan otomatis 24 jam','Auto order + delivery produk','Dashboard admin bot','Free instalasi & setting']},
+  {id:7,category:'bot-tele',badge:'Bot Telegram',badgeClass:'bg-sky-100 text-sky-800',tag:'Downloader',tagClass:'bg-emerald-50 text-emerald-800',name:'Bot Telegram Downloader',price:20000,oneTime:true,features:['Download YT, TikTok, IG','Respon cepat < 2 detik','Free update selamanya','Garansi perbaikan bug']},
+  {id:8,category:'bot-tele',badge:'Bot Telegram',badgeClass:'bg-sky-100 text-sky-800',tag:'Auto Post',tagClass:'bg-neutral-100 text-neutral-900',name:'Bot Telegram Jualan + Auto Post',price:35000,oneTime:true,features:['Auto post ke channel/grup','Manajemen produk lengkap','Sistem pembayaran otomatis','Free instalasi & setting']},
+  {id:9,category:'web-dev',badge:'Jasa Web',badgeClass:'bg-amber-100 text-amber-900',tag:'Landing Page',tagClass:'bg-emerald-50 text-emerald-800',name:'Jasa Landing Page Profesional',price:150000,oneTime:true,features:['Desain modern & responsif','Free revisi 2x','SEO friendly basics','Domain .my.id gratis 1 bulan']},
+  {id:10,category:'web-dev',badge:'Jasa Web',badgeClass:'bg-amber-100 text-amber-900',tag:'Toko Online',tagClass:'bg-amber-100 text-amber-900',name:'Jasa Website Toko Online + Dashboard',price:450000,oneTime:true,features:['Toko online lengkap + keranjang','Dashboard admin pesanan','Integrasi WhatsApp order','Free maintenance 1 bulan']},
+];
+
+const CATEGORY_META={
+  all:{title:'Semua Produk & Jasa',icon:'fa-solid fa-store',sub:'Katalog lengkap ANDRI STORE'},
+  pterodactyl:{title:'Paket Panel Pterodactyl High Speed',icon:'fa-solid fa-server',sub:'Garansi Full Active Node'},
+  'bot-wa':{title:'Script Bot WhatsApp',icon:'fa-solid fa-robot',sub:'Multi device & siap pakai'},
+  'bot-tele':{title:'Script Bot Telegram',icon:'fa-solid fa-robot',sub:'Downloader & auto jualan'},
+  'web-dev':{title:'Jasa Pembuatan Website',icon:'fa-solid fa-code',sub:'Landing page sampai toko online'},
+};
+
+const A1='https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&auto=format&fit=crop&q=80';
+const A2='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80';
+const A3='https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80';
+const A4='https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&auto=format&fit=crop&q=80';
+
+const DEFAULT_USERS=[
+  {id:1,username:'dev_andri',email:'andri@andristore.co',product:'Panel Unlimited Node',role:'owner',status:'active',joined:'Jan 2024',avatar:A1},
+  {id:2,username:'budi_gaming',email:'budi@gmail.com',product:'Panel Pterodactyl 4GB',role:'user',status:'active',joined:'Mar 2024',avatar:A2},
+  {id:3,username:'rizky_store',email:'rizky@gmail.com',product:'Admin Panel Full',role:'admin',status:'active',joined:'Feb 2024',avatar:A3},
+  {id:4,username:'siti_bot_wa',email:'siti@gmail.com',product:'Panel 2GB (Bot WA)',role:'user',status:'active',joined:'Apr 2024',avatar:A4},
+  {id:5,username:'dedi_web',email:'dedi@gmail.com',product:'Jasa Website Toko Online',role:'user',status:'active',joined:'Mei 2024',avatar:A1},
+  {id:6,username:'agus_bot',email:'agus@gmail.com',product:'Bot WA Auto Store',role:'user',status:'suspended',joined:'Jun 2024',avatar:A2},
+  {id:7,username:'nanda_host',email:'nanda@gmail.com',product:'Panel Pterodactyl 2GB',role:'user',status:'active',joined:'Jul 2024',avatar:A3},
+  {id:8,username:'fajar_md',email:'fajar@gmail.com',product:'Script Bot WA MD',role:'user',status:'suspended',joined:'Agu 2024',avatar:A4},
+  {id:9,username:'putri_store',email:'putri@gmail.com',product:'Bot Telegram Auto Post',role:'user',status:'active',joined:'Sep 2024',avatar:A1},
+  {id:10,username:'yoga_dev',email:'yoga@gmail.com',product:'Jasa Landing Page',role:'admin',status:'active',joined:'Okt 2024',avatar:A2},
+  {id:11,username:'dewa_panel',email:'dewa@gmail.com',product:'Panel Pterodactyl 1GB',role:'user',status:'active',joined:'Nov 2024',avatar:A3},
+  {id:12,username:'candra_gg',email:'candra@gmail.com',product:'Panel Pterodactyl 4GB',role:'user',status:'active',joined:'Des 2024',avatar:A4},
+];
+
+const DURATIONS=[
+  {label:'1 Bulan',months:1,disc:0},
+  {label:'3 Bulan — Hemat 5%',months:3,disc:.05},
+  {label:'6 Bulan — Hemat 10%',months:6,disc:.10},
+];
+const PAY_METHODS=['QRIS (Semua Bank/e-Wallet)','DANA','OVO','GoPay'];
+
+/* ---------- State ---------- */
+let products=[], orders=[], users=[], activityLog=[], profile={}, settings={};
+let activeCategory='all', searchQuery='';
+let trafficChart=null, analyticsLineChart=null, analyticsPieChart=null, analyticsInit=false;
+let currentOrder=null, orderQty=1, orderDurIndex=0, payMethodIndex=0;
+let selectedMsg=null, editingUserId=null;
+let calDate=new Date(), selectedCalDay=new Date().getDate(), calEvents={};
+let qrisSession=null; // {orderId, amount, months, productName, ramKey, endsAt, cdTimer, pollTimer, background}
+
+let notifications=[
+  {icon:'fa-server',bg:'bg-emerald-50',color:'text-emerald-600',title:'Server SG-04 kembali online',desc:'Node stabil kembali setelah maintenance 20 menit.',time:'5 mnt lalu',unread:true},
+  {icon:'fa-cart-shopping',bg:'bg-amber-50',color:'text-amber-600',title:'Pesanan baru masuk',desc:'budi_gaming checkout Panel Pterodactyl 4 GB via QRIS.',time:'1 jam lalu',unread:true},
+  {icon:'fa-triangle-exclamation',bg:'bg-red-50',color:'text-red-500',title:'RAM Node-02 mencapai 87%',desc:'Pertimbangkan upgrade atau migrasi server ringan.',time:'3 jam lalu',unread:true},
+  {icon:'fa-wallet',bg:'bg-neutral-100',color:'text-neutral-700',title:'Pembayaran QRIS diterima',desc:'Rp 7.000 dari rizky_store — Panel 2 GB aktif.',time:'Kemarin',unread:false},
+];
+
+let inboxMessages=[
+  {id:1,from:'budi_gaming',avatar:A2,subject:'Panel 4GB kok lambat ya?',time:'10:24',unread:true,thread:[{me:false,text:'Halo admin, panel 4GB saya kok lambat pas jalanin bot? Padahal baru aktif 2 hari.',time:'10:24'}]},
+  {id:2,from:'rizky_store',avatar:A3,subject:'Minta garansi panel',time:'09:15',unread:true,thread:[{me:false,text:'Panel 2GB saya down dari tadi pagi, bisa klaim garansi?',time:'09:15'}]},
+  {id:3,from:'siti_bot_wa',avatar:A4,subject:'Script bot error di fitur stiker',time:'Kemarin',unread:true,thread:[{me:false,text:'Fitur stiker di bot WA saya error, minta bantuan dong.',time:'Kemarin'}]},
+  {id:4,from:'dedi_web',avatar:A1,subject:'Order website toko online',time:'Senin',unread:false,thread:[
+    {me:false,text:'Halo, saya mau order paket website toko online + dashboard.',time:'Senin'},
+    {me:true,text:'Siap kak! Silakan transfer DP 50% ke QRIS di halaman checkout ya.',time:'Senin'}]},
+];
+
+/* ---------- Load state ---------- */
+function loadState(){
+  try{products=JSON.parse(localStorage.getItem('andri_products'));}catch(e){products=null;}
+  if(!Array.isArray(products)||!products.length) products=JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+  try{orders=JSON.parse(localStorage.getItem('andri_orders'))||[];}catch(e){orders=[];}
+  try{users=JSON.parse(localStorage.getItem('andri_users'));}catch(e){users=null;}
+  if(!Array.isArray(users)||!users.length) users=JSON.parse(JSON.stringify(DEFAULT_USERS));
+  try{activityLog=JSON.parse(localStorage.getItem('andri_activity'))||[];}catch(e){activityLog=[];}
+  try{profile=JSON.parse(localStorage.getItem('andri_profile'));}catch(e){profile=null;}
+  if(!profile) profile={name:'Alex Morgan',email:'alex@andristore.co',avatar:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',role:'admin'};
+  try{settings=JSON.parse(localStorage.getItem('andri_settings'));}catch(e){settings=null;}
+  if(!settings) settings={theme:'light',storeName:'ANDRI STORE',wa:'6281234567890',notifOrder:true,notifServer:true,maintenance:false};
+}
+
+/* ---------- Log Aktivitas ---------- */
+function logActivity(text,icon='fa-circle-info'){
+  activityLog.unshift({text,icon,time:new Date().toLocaleString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})});
+  activityLog=activityLog.slice(0,20);
+  persist('activity',activityLog);
+  renderActivityLog();
+}
+function activityItemHTML(a){
+  return `<div class="flex items-start gap-3 p-3 rounded-2xl bg-white/70 border border-white">
+    <div class="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center flex-shrink-0"><i class="fa-solid ${a.icon} text-neutral-600 text-xs"></i></div>
+    <div class="flex-1 min-w-0">
+      <p class="text-xs font-bold text-neutral-800 leading-snug">${esc(a.text)}</p>
+      <p class="text-[10px] text-neutral-400 mt-0.5">${a.time}</p>
+    </div>
+  </div>`;
+}
+function renderActivityLog(){
+  const full=$('activityLog');
+  if(full) full.innerHTML=activityLog.length?activityLog.map(activityItemHTML).join('')
+    :`<div class="text-center py-8"><i class="fa-regular fa-clock text-2xl text-neutral-300"></i><p class="text-xs font-semibold text-neutral-500 mt-2">Belum ada aktivitas</p></div>`;
+  const mini=$('miniActivity');
+  if(mini) mini.innerHTML=activityLog.length?activityLog.slice(0,5).map(activityItemHTML).join('')
+    :`<div class="text-center py-6"><i class="fa-regular fa-clock text-2xl text-neutral-300"></i><p class="text-xs font-semibold text-neutral-500 mt-2">Belum ada aktivitas tercatat</p></div>`;
+}
+
+/* ---------- ROLE: Admin / User ---------- */
+function switchRole(role){
+  if(profile.role===role) return;
+  profile.role=role; persist('profile',profile);
+  applyRole();
+  logActivity('Beralih ke mode '+(role==='admin'?'Admin':'User'),'fa-right-left');
+  showToast(role==='admin'?'Anda masuk sebagai <b>ADMIN</b> — semua fitur terbuka.':'Anda masuk sebagai <b>USER</b> — fitur admin dikunci.','info');
+}
+function applyRole(){
+  const isAdmin=profile.role==='admin';
+  document.body.classList.toggle('role-user',!isAdmin);
+  const active='px-4 py-1.5 rounded-xl text-xs font-bold transition-all bg-neutral-900 text-white shadow-md';
+  const idle='px-4 py-1.5 rounded-xl text-xs font-bold transition-all text-neutral-500 hover:text-neutral-900';
+  $('roleBtnAdmin').innerHTML='<i class="fa-solid fa-user-shield mr-1.5"></i>Admin';
+  $('roleBtnUser').innerHTML='<i class="fa-solid fa-user mr-1.5"></i>User';
+  $('roleBtnAdmin').className=isAdmin?active:idle;
+  $('roleBtnUser').className=!isAdmin?active:idle;
+  $('roleLabel').textContent=isAdmin?'Admin':'User';
+  $('roleIcon').innerHTML=isAdmin?'<i class="fa-solid fa-user-shield"></i>':'<i class="fa-solid fa-user"></i>';
+  $('roleDesc').textContent=isAdmin?'Akses penuh: kelola user, produk & sistem.':'Akses terbatas: katalog shop & profil saja.';
+  $('teamRoleBadge').textContent=isAdmin?'Admin':'User';
+  if(!isAdmin&&($('pcontent-users').classList.contains('active')||$('pcontent-admin').classList.contains('active'))){
+    switchProfileTab('profil');
+  }
+}
+
+/* ---------- Sub-tab Profile ---------- */
+function switchProfileTab(tab){
+  if((tab==='users'||tab==='admin')&&profile.role!=='admin'){
+    showToast('Akses ditolak. Fitur ini khusus <b>Admin</b>.','error');
+    return;
+  }
+  ['profil','users','admin'].forEach(t=>{
+    $('ptab-'+t).classList.toggle('active',t===tab);
+    $('pcontent-'+t).classList.toggle('active',t===tab);
+  });
+  if(tab==='users') renderUsers();
+}
+
+/* ---------- MANAJEMEN USER ---------- */
+function userStats(){
+  const total=users.length;
+  const active=users.filter(u=>u.status==='active').length;
+  return {total,active,suspended:total-active,admins:users.filter(u=>u.role==='admin'||u.role==='owner').length};
+}
+function renderUsers(){
+  const q=($('userSearch').value||'').toLowerCase().trim();
+  const rf=$('userRoleFilter').value, sf=$('userStatusFilter').value;
+  const list=users.filter(u=>
+    (!q||u.username.toLowerCase().includes(q)||u.email.toLowerCase().includes(q))&&
+    (rf==='all'||u.role===rf)&&(sf==='all'||u.status===sf));
+  const st=userStats();
+  $('ustatTotal').textContent=st.total; $('ustatActive').textContent=st.active;
+  $('ustatSuspended').textContent=st.suspended; $('ustatAdmins').textContent=st.admins;
+  $('userCountBadge').textContent=st.total;
+  $('navUserCount').textContent=st.total;
+  $('activeUserCountBadge').textContent=st.active+' User';
+  $('statCustomers').textContent=st.active;
+  $('usersEmpty').classList.toggle('hidden',list.length>0);
+  $('usersList').innerHTML=list.map(userRow).join('');
+}
+function userRow(u){
+  const roleBadge={owner:'bg-neutral-900 text-white',admin:'bg-amber-100 text-amber-900',user:'bg-neutral-100 text-neutral-700'}[u.role];
+  const isOwner=u.role==='owner';
+  return `<div class="p-3 rounded-2xl bg-white/70 border border-white hover:bg-white transition-all flex flex-col lg:flex-row lg:items-center gap-3">
+    <div class="flex items-center gap-3 flex-1 min-w-0">
+      <img src="${u.avatar}" onerror="avatarFallback(this)" class="w-10 h-10 rounded-xl object-cover border border-white flex-shrink-0" alt="">
+      <div class="min-w-0">
+        <div class="flex items-center gap-2 flex-wrap">
+          <p class="font-bold text-xs text-neutral-900 truncate">${esc(u.username)}</p>
+          <span class="text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full ${roleBadge}">${u.role}</span>
+        </div>
+        <p class="text-[11px] text-neutral-400 truncate mt-0.5">${esc(u.email)} • ${esc(u.product)}</p>
+      </div>
+    </div>
+    <div class="flex items-center gap-2 lg:justify-end flex-wrap">
+      <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${u.status==='active'?'bg-emerald-100 text-emerald-800':'bg-red-100 text-red-700'}">${u.status==='active'?'Aktif':'Suspended'}</span>
+      <select onchange="changeUserRole(${u.id},this.value)" ${isOwner?'disabled':''} class="admin-only text-[10px] font-bold bg-white border border-neutral-200 rounded-xl px-2 py-1.5 cursor-pointer focus:outline-none focus:ring-2 focus:ring-neutral-800 ${isOwner?'opacity-40 cursor-not-allowed':''}">
+        <option value="user" ${u.role==='user'?'selected':''}>User</option>
+        <option value="admin" ${u.role==='admin'?'selected':''}>Admin</option>
+        <option value="owner" ${u.role==='owner'?'selected':''}>Owner</option>
+      </select>
+      <button onclick="toggleUserStatus(${u.id})" ${isOwner?'disabled':''} class="admin-only w-8 h-8 rounded-xl bg-white border border-neutral-200 flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed ${u.status==='active'?'text-amber-600 hover:bg-amber-50':'text-emerald-600 hover:bg-emerald-50'}" title="${u.status==='active'?'Suspend user':'Aktifkan kembali'}"><i class="fa-solid ${u.status==='active'?'fa-user-slash':'fa-user-check'} text-xs"></i></button>
+      <button onclick="deleteUser(${u.id})" ${isOwner?'disabled':''} class="admin-only w-8 h-8 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-red-500 hover:bg-red-50 transition-all disabled:opacity-40 disabled:cursor-not-allowed" title="Hapus user"><i class="fa-regular fa-trash-can text-xs"></i></button>
+    </div>
+  </div>`;
+}
+function openUserModal(id){
+  if(profile.role!=='admin'){ showToast('Akses ditolak. Khusus Admin.','error'); return; }
+  editingUserId=id||null;
+  const u=id?users.find(x=>x.id===id):null;
+  $('userModalTitle').textContent=u?'Edit User: '+u.username:'Tambah User Baru';
+  $('usrUsername').value=u?u.username:'';
+  $('usrEmail').value=u?u.email:'';
+  $('usrProduct').value=u?u.product:'';
+  $('usrRole').value=u?u.role:'user';
+  $('usrStatus').value=u?u.status:'active';
+  $('usrAvatar').value=u&&u.avatar!==AVATAR_FALLBACK?u.avatar:'';
+  openModal('userModal');
+  setTimeout(()=>$('usrUsername').focus(),100);
+}
+function saveUser(){
+  const username=$('usrUsername').value.trim(), email=$('usrEmail').value.trim(), product=$('usrProduct').value.trim();
+  if(username.length<3){ showToast('Username minimal 3 karakter.','error'); return; }
+  if(!email.includes('@')||email.length<5){ showToast('Email tidak valid.','error'); return; }
+  const data={username,email,product:product||'Belum berlangganan',role:$('usrRole').value,status:$('usrStatus').value,avatar:$('usrAvatar').value.trim()||AVATAR_FALLBACK};
+  if(editingUserId){
+    Object.assign(users.find(x=>x.id===editingUserId),data);
+    logActivity('Data user "'+username+'" diperbarui','fa-pen-to-square');
+    showToast('User <b>'+esc(username)+'</b> berhasil diperbarui.');
+  }else{
+    users.unshift({id:Date.now(),joined:new Date().toLocaleDateString('id-ID',{month:'short',year:'numeric'}),...data});
+    logActivity('User baru "'+username+'" ditambahkan','fa-user-plus');
+    showToast('User <b>'+esc(username)+'</b> berhasil ditambahkan!');
+  }
+  persist('users',users); closeModal('userModal'); renderUsers(); renderOverviewUsers();
+}
+function changeUserRole(id,role){
+  const u=users.find(x=>x.id===id);
+  if(!u||u.role==='owner'||u.role===role) return;
+  u.role=role; persist('users',users); renderUsers();
+  logActivity('Role "'+u.username+'" diubah menjadi '+role,'fa-user-gear');
+  showToast('Role <b>'+esc(u.username)+'</b> sekarang <b>'+role+'</b>.');
+}
+function toggleUserStatus(id){
+  const u=users.find(x=>x.id===id);
+  if(!u||u.role==='owner'){ showToast('Akun owner tidak bisa di-suspend.','error'); return; }
+  u.status=u.status==='active'?'suspended':'active';
+  persist('users',users); renderUsers(); renderOverviewUsers();
+  const susp=u.status==='suspended';
+  notifications.unshift({icon:susp?'fa-user-slash':'fa-user-check',bg:susp?'bg-red-50':'bg-emerald-50',color:susp?'text-red-500':'text-emerald-600',
+    title:(susp?'User "'+u.username+'" di-suspend':'User "'+u.username+'" diaktifkan'),desc:susp?'Akses panel diblokir sementara.':'Akses panel dipulihkan.',time:'Baru saja',unread:true});
+  renderNotifications();
+  logActivity((susp?'User "'+u.username+'" di-suspend':'User "'+u.username+'" diaktifkan kembali'),susp?'fa-user-slash':'fa-user-check');
+  showToast(susp?'User <b>'+esc(u.username)+'</b> di-suspend.':'User <b>'+esc(u.username)+'</b> aktif kembali.','info');
+}
+function deleteUser(id){
+  const u=users.find(x=>x.id===id);
+  if(!u) return;
+  if(u.role==='owner'){ showToast('Akun owner tidak bisa dihapus.','error'); return; }
+  confirmAction('Hapus User','User "'+u.username+'" akan dihapus permanen dari daftar.',()=>{
+    users=users.filter(x=>x.id!==id);
+    persist('users',users); renderUsers(); renderOverviewUsers();
+    logActivity('User "'+u.username+'" dihapus','fa-user-minus');
+    showToast('User <b>'+esc(u.username)+'</b> dihapus.','info');
+  });
+}
+function renderOverviewUsers(){
+  const active=users.filter(u=>u.status==='active').slice(0,4);
+  $('overviewUserList').innerHTML=active.map(u=>{
+    const roleBadge=u.role==='owner'?'bg-neutral-900 text-white':u.role==='admin'?'bg-amber-100 text-amber-900':'bg-emerald-100 text-emerald-800';
+    const roleLabel=u.role==='owner'?'Owner':u.role==='admin'?'Admin':'Aktif';
+    return `<div class="p-3 rounded-2xl bg-white/70 hover:bg-white border border-white shadow-sm transition-all flex items-center justify-between">
+      <div class="flex items-center gap-3 min-w-0">
+        <img src="${u.avatar}" onerror="avatarFallback(this)" class="w-9 h-9 rounded-full object-cover flex-shrink-0" alt="">
+        <div class="min-w-0"><p class="font-bold text-xs text-neutral-800 truncate">${esc(u.username)}</p><p class="text-[11px] text-neutral-400 truncate">${esc(u.product)}</p></div>
+      </div>
+      <span class="text-[10px] ${roleBadge} font-bold px-2 py-0.5 rounded-full flex-shrink-0">${roleLabel}</span>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- PANEL ADMIN ---------- */
+function openBroadcastModal(){
+  if(profile.role!=='admin'){ showToast('Akses ditolak. Khusus Admin.','error'); return; }
+  $('bcTitle').value=''; $('bcMsg').value='';
+  openModal('broadcastModal');
+  setTimeout(()=>$('bcTitle').focus(),100);
+}
+function sendBroadcast(){
+  const title=$('bcTitle').value.trim(), msg=$('bcMsg').value.trim();
+  if(title.length<3||msg.length<3){ showToast('Judul & pesan minimal 3 karakter.','error'); return; }
+  notifications.unshift({icon:'fa-bullhorn',bg:'bg-amber-50',color:'text-amber-600',title,desc:msg,time:'Baru saja',unread:true});
+  renderNotifications();
+  logActivity('Broadcast terkirim: "'+title+'"','fa-bullhorn');
+  closeModal('broadcastModal');
+  showToast('Broadcast <b>'+esc(title)+'</b> terkirim ke semua user!');
+}
+function updateMaintenanceUI(){
+  const on=!!settings.maintenance;
+  $('maintenanceBanner').classList.toggle('hidden',!on);
+  $('maintStatusChip').textContent=on?'AKTIF':'NONAKTIF';
+  $('maintStatusChip').className='text-[10px] font-extrabold px-2.5 py-1 rounded-full '+(on?'bg-amber-100 text-amber-900 animate-pulse':'bg-emerald-100 text-emerald-800');
+  $('maintToggleBtn').innerHTML=on?'<i class="fa-solid fa-toggle-on mr-1.5"></i>Matikan Maintenance':'<i class="fa-solid fa-toggle-off mr-1.5"></i>Aktifkan Maintenance';
+}
+function toggleMaintenance(){
+  if(profile.role!=='admin'){ showToast('Akses ditolak. Khusus Admin.','error'); return; }
+  settings.maintenance=!settings.maintenance; persist('settings',settings);
+  updateMaintenanceUI();
+  notifications.unshift({icon:'fa-screwdriver-wrench',bg:'bg-amber-50',color:'text-amber-600',
+    title:settings.maintenance?'Mode Maintenance diaktifkan':'Maintenance selesai',
+    desc:settings.maintenance?'Server baru sementara tidak diproses.':'Semua sistem kembali normal.',time:'Baru saja',unread:true});
+  renderNotifications();
+  logActivity(settings.maintenance?'Mode maintenance AKTIF':'Mode maintenance dimatikan','fa-screwdriver-wrench');
+  showToast(settings.maintenance?'Mode maintenance <b>AKTIF</b>.':'Maintenance dimatikan — sistem normal.','info');
+}
+function backupData(){
+  if(profile.role!=='admin'){ showToast('Akses ditolak. Khusus Admin.','error'); return; }
+  const data={products,orders,users,activityLog,profile,settings,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='andri-store-backup-'+new Date().toISOString().slice(0,10)+'.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  logActivity('Backup data diunduh (JSON)','fa-database');
+  showToast('Backup berhasil diunduh!');
+}
+
+/* ---------- Tab Navigation ---------- */
+const TAB_META={
+  overview:['Overview','Selamat Datang di ANDRI STORE — pantau performa server & toko Anda.'],
+  analytics:['Analytics','Analisis traffic, bandwidth & distribusi resource node.'],
+  shop:['Shop','Katalog produk & jasa resmi ANDRI STORE.'],
+  team:['Profile & Team','Kelola profil, user, dan panel admin.'],
+  inbox:['Inbox','Pesan masuk dari pelanggan & notifikasi sistem.'],
+  calendar:['Calendar','Jadwal maintenance, rilis produk & promo.'],
+  settings:['Settings','Pengaturan akun, tampilan & preferensi toko.'],
+  help:['Help & Support','Pusat bantuan, FAQ & kontak dukungan.'],
+};
+const NAV_TABS=['overview','analytics','shop','team','inbox','calendar','settings','help'];
+function switchTab(tab){
+  if(!TAB_META[tab]) return;
+  NAV_TABS.forEach(t=>{
+    const btn=$('nav-'+t), view=$('view-'+t), active=t===tab;
+    if(view) view.classList.toggle('active',active);
+    if(btn){ btn.classList.toggle('glass-pill-dark',active); btn.classList.toggle('text-neutral-600',!active); btn.classList.toggle('hover:bg-white/60',!active); }
+  });
+  $('pageTitle').textContent=TAB_META[tab][0];
+  $('pageSubtitle').textContent=TAB_META[tab][1];
+  closeMobileSidebar(); closeNotificationMenu();
+  if(tab==='analytics') initAnalyticsCharts();
+  if(tab==='team'){ renderUsers(); renderActivityLog(); }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function toggleMobileSidebar(){
+  $('sidebarNav').classList.toggle('open');
+  $('sidebarOverlay').classList.toggle('open');
+}
+function closeMobileSidebar(){
+  $('sidebarNav').classList.remove('open');
+  $('sidebarOverlay').classList.remove('open');
+}
+
+/* ---------- Notifikasi ---------- */
+function toggleNotificationMenu(e){
+  if(e) e.stopPropagation();
+  $('notificationDropdown').classList.toggle('hidden');
+  renderNotifications();
+}
+function closeNotificationMenu(){ $('notificationDropdown').classList.add('hidden'); }
+function renderNotifications(){
+  $('notifListContainer').innerHTML=notifications.map((n,i)=>`
+    <div class="flex items-start gap-3 p-2.5 rounded-xl hover:bg-white/80 transition-all cursor-pointer" onclick="readNotification(${i})">
+      <div class="w-8 h-8 rounded-lg ${n.bg} flex items-center justify-center flex-shrink-0"><i class="fa-solid ${n.icon} ${n.color} text-xs"></i></div>
+      <div class="flex-1 min-w-0">
+        <p class="font-bold text-neutral-800 text-xs leading-snug">${esc(n.title)}</p>
+        <p class="text-[11px] text-neutral-400 mt-0.5 leading-snug">${esc(n.desc)}</p>
+        <p class="text-[10px] text-neutral-300 mt-1 font-semibold">${n.time}</p>
+      </div>
+      ${n.unread?'<span class="w-2 h-2 rounded-full bg-emerald-500 flex-shrink-0 mt-1.5"></span>':''}
+    </div>`).join('');
+  $('notifDot').classList.toggle('hidden',notifications.every(n=>!n.unread));
+}
+function readNotification(i){ notifications[i].unread=false; renderNotifications(); }
+function markAllNotifRead(){ notifications.forEach(n=>n.unread=false); renderNotifications(); showToast('Semua notifikasi ditandai dibaca','info'); }
+
+/* ---------- Search ---------- */
+function handleSearch(e){
+  searchQuery=e.target.value;
+  if(e.key==='Enter'){ switchTab('shop'); renderShop(); }
+  else if($('view-shop').classList.contains('active')) renderShop();
+}
+function clearSearch(){ searchQuery=''; $('globalSearchInput').value=''; renderShop(); }
+
+/* ---------- Charts ---------- */
+const CHART_TICK='#9ca3af', CHART_GRID='rgba(140,140,140,.14)';
+function chartBaseOptions(){
+  return {responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+    plugins:{legend:{labels:{color:CHART_TICK,usePointStyle:true,pointStyle:'circle',boxWidth:8,font:{size:11,family:'Inter'}}}},
+    scales:{x:{grid:{display:false},ticks:{color:CHART_TICK,font:{size:10},maxTicksLimit:8}},y:{grid:{color:CHART_GRID},ticks:{color:CHART_TICK,font:{size:10}}}}};
+}
+function genLabels(days){
+  const out=[],now=new Date();
+  if(days===365){ for(let i=11;i>=0;i--) out.push(new Date(now.getFullYear(),now.getMonth()-i,1).toLocaleDateString('id-ID',{month:'short'})); return out; }
+  for(let i=days-1;i>=0;i--){ const d=new Date(now); d.setDate(d.getDate()-i); out.push(d.toLocaleDateString('id-ID',{day:'numeric',month:'short'})); }
+  return out;
+}
+const genData=(n,min,max)=>Array.from({length:n},()=>Math.floor(min+Math.random()*(max-min)));
+function initTrafficChart(){
+  const c=$('trafficChart'), ctx=c.getContext('2d');
+  const g=ctx.createLinearGradient(0,0,0,280);
+  g.addColorStop(0,'rgba(23,23,23,.18)'); g.addColorStop(1,'rgba(23,23,23,0)');
+  trafficChart=new Chart(c,{type:'line',
+    data:{labels:genLabels(30),datasets:[
+      {label:'Requests Panel',data:genData(30,350,900),borderColor:'#171717',backgroundColor:g,fill:true,tension:.4,borderWidth:2.5,pointRadius:0,pointHoverRadius:5},
+      {label:'Koneksi Server',data:genData(30,120,480),borderColor:'#d97706',backgroundColor:'rgba(217,119,6,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:0}
+    ]},options:chartBaseOptions()});
+}
+function updateChartData(days){
+  if(!trafficChart) return;
+  days=parseInt(days);
+  trafficChart.data.labels=genLabels(days);
+  trafficChart.data.datasets.forEach((ds,i)=>{ ds.data=genData(days,i===0?350:120,i===0?900:480); });
+  trafficChart.update();
+}
+function initAnalyticsCharts(){
+  if(analyticsInit) return; analyticsInit=true;
+  analyticsLineChart=new Chart($('analyticsLineChart'),{type:'line',
+    data:{labels:genLabels(14),datasets:[
+      {label:'Download (MB/s)',data:genData(14,40,140),borderColor:'#171717',backgroundColor:'rgba(23,23,23,.1)',fill:true,tension:.4,borderWidth:2.5,pointRadius:0},
+      {label:'Upload (MB/s)',data:genData(14,10,60),borderColor:'#d97706',backgroundColor:'rgba(217,119,6,.08)',fill:true,tension:.4,borderWidth:2,pointRadius:0}
+    ]},options:chartBaseOptions()});
+  analyticsPieChart=new Chart($('analyticsPieChart'),{type:'doughnut',
+    data:{labels:['CPU','RAM','Disk SSD','Bandwidth'],datasets:[{data:[42,57,35,48],backgroundColor:['#171717','#d97706','#a8a29e','#3f6212'],borderWidth:0,hoverOffset:10}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'66%',plugins:{legend:{position:'bottom',labels:{color:CHART_TICK,usePointStyle:true,pointStyle:'circle',boxWidth:8,padding:12,font:{size:10,family:'Inter'}}}}}});
+}
+
+/* ---------- SHOP ---------- */
+function filterShopCategory(cat){
+  activeCategory=cat;
+  Object.keys(CATEGORY_META).forEach(c=>$('tab-cat-'+c).classList.toggle('active',c===cat));
+  renderShop();
+}
+function renderShop(){
+  const meta=CATEGORY_META[activeCategory];
+  let list=products.filter(p=>activeCategory==='all'||p.category===activeCategory);
+  const q=searchQuery.trim().toLowerCase();
+  if(q) list=list.filter(p=>p.name.toLowerCase().includes(q)||p.features.join(' ').toLowerCase().includes(q));
+  $('shopSectionTitle').innerHTML=`<i class="${meta.icon} text-neutral-900"></i> ${meta.title}`;
+  $('shopSectionMeta').textContent=`${list.length} produk ditampilkan • ${meta.sub}`;
+  $('shopSearchChip').classList.toggle('hidden',!q);
+  $('shopSearchChip').classList.toggle('flex',!!q);
+  if(q) $('shopSearchChipText').textContent=`"${searchQuery.trim()}"`;
+  const grid=$('shopProductsGrid');
+  if(!list.length){
+    grid.innerHTML=`<div class="col-span-full glass-card rounded-3xl p-10 text-center">
+      <div class="w-14 h-14 mx-auto rounded-2xl glass-icon-box flex items-center justify-center mb-3"><i class="fa-solid fa-magnifying-glass text-xl text-neutral-400"></i></div>
+      <p class="font-bold text-sm text-neutral-800">Produk tidak ditemukan</p>
+      <p class="text-xs text-neutral-400 mt-1">Coba kata kunci lain atau reset filter pencarian.</p>
+      <button onclick="clearSearch()" class="mt-4 px-4 py-2 bg-neutral-900 text-white text-xs font-bold rounded-2xl hover:bg-neutral-800 transition-all">Reset Filter</button>
+    </div>`;
+    return;
+  }
+  grid.innerHTML=list.map(productCard).join('');
+}
+function productCard(p){
+  const features=p.features.map(f=>`<li class="flex items-start gap-2"><i class="fa-solid fa-check text-neutral-900 mt-0.5"></i><span>${esc(f)}</span></li>`).join('');
+  return `<div class="glass-card rounded-3xl p-5 hover:border-neutral-900 hover:shadow-lg transition-all border border-white flex flex-col justify-between ${p.highlight?'bg-gradient-to-br from-neutral-100/60 to-amber-50/40':''}">
+    <div>
+      <div class="flex items-start justify-between gap-2 mb-3">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <span class="text-[10px] font-bold ${p.badgeClass} px-2.5 py-1 rounded-full uppercase">${esc(p.badge)}</span>
+          <span class="text-[10px] font-extrabold ${p.tagClass} px-2.5 py-1 rounded-full">${esc(p.tag)}</span>
+        </div>
+        <button onclick="deleteProduct(${p.id})" class="admin-only w-7 h-7 rounded-lg text-neutral-300 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center flex-shrink-0" aria-label="Hapus produk" title="Hapus produk (admin)"><i class="fa-regular fa-trash-can text-xs"></i></button>
+      </div>
+      <h5 class="font-black text-lg text-neutral-900 leading-snug">${esc(p.name)}</h5>
+      <div class="my-3">
+        <span class="text-2xl font-black text-neutral-900">${formatRupiah(p.price)}</span>
+        <span class="text-xs text-neutral-400 font-normal"> / ${p.oneTime?'sekali bayar':'bulan'}</span>
+      </div>
+      <ul class="text-xs text-neutral-600 space-y-2 pt-3 border-t border-neutral-200">${features}</ul>
+    </div>
+    <button onclick="openOrderModal(${p.id})" class="mt-5 w-full py-2.5 bg-neutral-900 hover:bg-neutral-800 text-white font-bold text-xs rounded-2xl shadow-md transition-all flex items-center justify-center gap-2">
+      <i class="fa-solid fa-cart-shopping"></i><span>Beli Sekarang</span>
+    </button>
+  </div>`;
+}
+function deleteProduct(id){
+  if(profile.role!=='admin'){ showToast('Akses ditolak. Khusus Admin.','error'); return; }
+  const p=products.find(x=>x.id===id); if(!p) return;
+  confirmAction('Hapus Produk',`"${p.name}" akan dihapus permanen dari katalog.`,()=>{
+    products=products.filter(x=>x.id!==id); persist('products',products);
+    renderShop(); logActivity('Produk "'+p.name+'" dihapus','fa-box-open');
+    showToast('Produk <b>'+esc(p.name)+'</b> dihapus.','info');
+  });
+}
+function openAdminProductModal(cat){
+  if(profile.role!=='admin'){ showToast('Akses ditolak. Khusus Admin.','error'); return; }
+  ['prodName','prodPrice','prodBadge','prodFeatures'].forEach(id=>$(id).value='');
+  $('prodCategory').value=cat||'pterodactyl';
+  $('prodOneTime').checked=false;
+  openModal('productModal');
+  setTimeout(()=>$('prodName').focus(),100);
+}
+function saveProduct(){
+  const name=$('prodName').value.trim();
+  const category=$('prodCategory').value;
+  const price=parseInt($('prodPrice').value)||0;
+  const badge=$('prodBadge').value.trim()||'Custom Node';
+  const features=$('prodFeatures').value.split('\n').map(s=>s.trim()).filter(Boolean);
+  if(name.length<3){ showToast('Nama produk minimal 3 karakter.','error'); return; }
+  if(price<100){ showToast('Harga produk minimal Rp 100.','error'); return; }
+  const badgeClassMap={'pterodactyl':'bg-neutral-200 text-neutral-900','bot-wa':'bg-emerald-100 text-emerald-800','bot-tele':'bg-sky-100 text-sky-800','web-dev':'bg-amber-100 text-amber-900'};
+  products.unshift({id:Date.now(),category,name,price,oneTime:$('prodOneTime').checked,badge,badgeClass:badgeClassMap[category],tag:'Baru',tagClass:'bg-emerald-50 text-emerald-800',features:features.length?features:['Produk resmi ANDRI STORE']});
+  persist('products',products);
+  renderShop(); closeModal('productModal');
+  logActivity('Produk baru "'+name+'" ditambahkan','fa-plus');
+  showToast('Produk <b>'+esc(name)+'</b> berhasil ditambahkan!');
+}
+
+/* ---------- Order Modal ---------- */
+function openOrderModal(productId){
+  const p=products.find(x=>x.id===productId); if(!p) return;
+  currentOrder=p; orderQty=1; orderDurIndex=0; payMethodIndex=0;
+  $('orderProductName').textContent=p.name;
+  $('orderUnitPrice').textContent=formatRupiah(p.price)+' / '+(p.oneTime?'sekali bayar':'bulan');
+  $('orderDurationRow').classList.toggle('hidden',!!p.oneTime);
+  $('orderDuration').innerHTML=DURATIONS.map((d,i)=>`<option value="${i}">${d.label}</option>`).join('');
+  $('orderQty').textContent=1;
+  $('orderCustomer').value='';
+  $('orderError').classList.add('hidden');
+  renderPayMethods(); updateOrderTotal();
+  openModal('orderModal');
+}
+function renderPayMethods(){
+  $('orderMethods').innerHTML=PAY_METHODS.map((m,i)=>`
+    <button type="button" onclick="selectPayMethod(${i})" class="px-3 py-2 rounded-2xl text-[11px] font-bold transition-all text-left ${i===payMethodIndex?'bg-neutral-900 text-white shadow-md':'bg-white/70 text-neutral-600 border border-neutral-200 hover:bg-white'}">${m}</button>`).join('');
+}
+function selectPayMethod(i){ payMethodIndex=i; renderPayMethods(); }
+function changeQty(d){ orderQty=Math.min(10,Math.max(1,orderQty+d)); $('orderQty').textContent=orderQty; updateOrderTotal(); }
+function updateOrderTotal(){
+  if(!currentOrder) return;
+  const d=currentOrder.oneTime?{months:1,disc:0}:DURATIONS[orderDurIndex];
+  const subtotal=currentOrder.price*orderQty*d.months;
+  const total=Math.round(subtotal*(1-d.disc));
+  $('orderTotal').textContent=formatRupiah(total);
+  $('orderDiscountNote').textContent=d.disc>0?`Hemat ${formatRupiah(subtotal-total)} (diskon ${d.disc*100}%)`:'';
+}
+
+/* ---------- QRIS CHECKOUT — integrasi Pakasir + Pterodactyl ---------- */
+function ramKeyOfProduct(p){
+  if(p.category!=='pterodactyl') return null;
+  if(/unlimited/i.test(p.name)) return 'unlimited';
+  const m=p.name.match(/(\d+)\s*GB/i);
+  return m?`${parseInt(m[1])}gb`:null;
+}
+function setOrderButtonLoading(loading){
+  const btn=$('orderSubmitBtn'); if(!btn) return;
+  btn.disabled=loading;
+  btn.innerHTML=loading
+    ? '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>Membuat QR pembayaran...'
+    : '<i class="fa-solid fa-qrcode text-base"></i><span>Bayar via QRIS</span>';
+}
+
+async function submitOrder(){
+  if(!currentOrder) return;
+  const cust=$('orderCustomer').value.trim();
+  const errEl=$('orderError');
+  if(cust.length<3){
+    errEl.querySelector('span').textContent='Mohon isi username panel Anda (min. 3 karakter, hanya huruf kecil & angka).';
+    errEl.classList.remove('hidden'); $('orderCustomer').focus(); return;
+  }
+  errEl.classList.add('hidden');
+  const ramKey=ramKeyOfProduct(currentOrder);
+  if(!ramKey){ submitOrderWhatsApp(); return; } // produk non-panel → WhatsApp
+  const months=currentOrder.oneTime?1:DURATIONS[orderDurIndex].months;
+
+  setOrderButtonLoading(true);
+  try{
+    const res=await fetch(`${API_BASE}/order/create`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ramKey,username:cust,months})
+    });
+    const data=await res.json();
+    if(!res.ok||!data.success) throw new Error(data.message||'Gagal membuat pembayaran');
+    closeModal('orderModal');
+    openQrisModal(data,ramKey);
+  }catch(err){
+    showToast('API pembayaran tidak tersedia — dialihkan ke checkout WhatsApp.','info');
+    submitOrderWhatsApp();
+  }finally{
+    setOrderButtonLoading(false);
+  }
+}
+
+/* WhatsApp (fallback manual oleh admin) */
+function submitOrderWhatsApp(){
+  if(!currentOrder) return;
+  const cust=$('orderCustomer').value.trim();
+  const errEl=$('orderError');
+  if(cust.length<3){
+    errEl.querySelector('span').textContent='Mohon isi nama / nomor WhatsApp Anda (minimal 3 karakter).';
+    errEl.classList.remove('hidden'); $('orderCustomer').focus(); return;
+  }
+  errEl.classList.add('hidden');
+  const d=currentOrder.oneTime?{months:1,disc:0,label:'Sekali Bayar'}:DURATIONS[orderDurIndex];
+  const subtotal=currentOrder.price*orderQty*d.months;
+  const total=Math.round(subtotal*(1-d.disc));
+  orders.unshift({id:Date.now(),product:currentOrder.name,qty:orderQty,months:d.months,method:'WhatsApp',customer:cust,total,date:new Date().toISOString(),status:'pending'});
+  persist('orders',orders);
+  const lines=[`Halo *${settings.storeName}*! Saya ingin memesan:`,``,`• Produk: ${currentOrder.name}`,`• Durasi: ${d.label}`,`• Jumlah: ${orderQty}`,`• Total: ${formatRupiah(total)}`,`• Nama: ${cust}`].join('\n');
+  window.open('https://wa.me/'+settings.wa+'?text='+encodeURIComponent(lines),'_blank');
+  logActivity('Pesanan via WhatsApp: '+currentOrder.name+' ('+formatRupiah(total)+')','fa-cart-shopping');
+  closeModal('orderModal'); renderOrderHistory();
+  showToast('Pesanan dibuat! Lanjutkan pembayaran via WhatsApp.');
+}
+
+function openQrisModal(data,ramKey){
+  qrisSession={
+    orderId:data.orderId, amount:data.amount, months:data.months,
+    productName:data.productName, ramKey, background:false,
+    endsAt:Date.now()+(data.expiresIn||300)*1000,
+    cdTimer:null, pollTimer:null,
+  };
+  ['qrisStateProvisioning','qrisStateSuccess','qrisStateError'].forEach(id=>$(id).classList.add('hidden'));
+  $('qrisStateWaiting').classList.remove('hidden');
+  $('qrisTitle').textContent='Menunggu Pembayaran';
+  $('qrisProductName').textContent=`${data.productName} • ${data.months} bulan`;
+  $('qrisAmount').textContent=formatRupiah(data.amount);
+  $('qrisImage').src=data.qrBase64;
+  $('qrisOrderId').textContent=data.orderId;
+  openModal('qrisModal');
+  qrisSession.cdTimer=setInterval(updateQrisCountdown,1000);
+  qrisSession.pollTimer=setInterval(pollQrisStatus,4000); // polling tiap 4 detik
+  setTimeout(pollQrisStatus,1500);
+  updateQrisCountdown();
+}
+
+function stopQrisTimers(){
+  if(!qrisSession) return;
+  clearInterval(qrisSession.cdTimer); clearInterval(qrisSession.pollTimer);
+}
+
+function updateQrisCountdown(){
+  if(!qrisSession) return;
+  const left=Math.max(0,Math.ceil((qrisSession.endsAt-Date.now())/1000));
+  if(!qrisSession.background){
+    $('qrisCountdown').textContent=
+      `${String(Math.floor(left/60)).padStart(2,'0')}:${String(left%60).padStart(2,'0')}`;
+  }
+  if(left<=0){
+    stopQrisTimers();
+    if(qrisSession.background) qrisSession=null;
+    else showQrisError('Waktu Pembayaran Habis','QR sudah kedaluwarsa. Klik "Coba Lagi" untuk membuat QR baru.');
+  }
+}
+
+async function pollQrisStatus(){
+  if(!qrisSession) return;
+  try{
+    const res=await fetch(`${API_BASE}/order/check`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({orderId:qrisSession.orderId})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(data.credentials){                    // SELESAI → kirim hasil panel ke user
+      const s=qrisSession; stopQrisTimers(); qrisSession=null;
+      deliverPanelResult(s,data.credentials);
+      return;
+    }
+    if(data.provisioning||data.paid){        // sudah bayar, panel sedang dibuat
+      if(qrisSession&&!qrisSession.background) showQrisProvisioning();
+      return;
+    }
+    if(data.cancelled){
+      stopQrisTimers(); qrisSession=null;
+      showQrisError('Pesanan Dibatalkan','Pesanan ini sudah dibatalkan.');
+    }
+  }catch(e){ /* error jaringan → polling lanjut otomatis */ }
+}
+
+function showQrisProvisioning(){
+  $('qrisStateWaiting').classList.add('hidden');
+  $('qrisStateError').classList.add('hidden');
+  $('qrisStateProvisioning').classList.remove('hidden');
+  $('qrisTitle').textContent='Memproses Pembayaran';
+}
+function showQrisError(title,msg){
+  $('qrisStateWaiting').classList.add('hidden');
+  $('qrisStateProvisioning').classList.add('hidden');
+  $('qrisStateError').classList.remove('hidden');
+  $('qrisTitle').textContent='Pembayaran Gagal';
+  $('qrisErrorTitle').textContent=title;
+  $('qrisErrorMsg').textContent=msg;
+}
+function credentialRow(label,value){
+  return `<div class="flex items-center justify-between gap-3 bg-white/80 border border-neutral-200 rounded-2xl px-4 py-2.5">
+    <div class="min-w-0">
+      <p class="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">${label}</p>
+      <p class="text-xs font-bold font-mono text-neutral-900 truncate">${esc(value)}</p>
+    </div>
+    <button data-copy="${esc(value)}" onclick="copyText(this)" class="w-8 h-8 rounded-xl bg-neutral-100 hover:bg-neutral-900 hover:text-white text-neutral-600 flex items-center justify-center flex-shrink-0 transition-all" aria-label="Copy ${label}"><i class="fa-regular fa-copy text-xs"></i></button>
+  </div>`;
+}
+function copyText(btn){
+  const v=btn.dataset.copy||'';
+  if(navigator.clipboard?.writeText){
+    navigator.clipboard.writeText(v)
+      .then(()=>showToast('Disalin: <b>'+esc(v.slice(0,24))+(v.length>24?'…':'')+'</b>'))
+      .catch(()=>showToast('Gagal menyalin','error'));
+  } else showToast('Browser tidak mendukung copy','error');
+}
+function showQrisSuccess(creds){
+  $('qrisStateWaiting').classList.add('hidden');
+  $('qrisStateProvisioning').classList.add('hidden');
+  $('qrisStateError').classList.add('hidden');
+  $('qrisStateSuccess').classList.remove('hidden');
+  $('qrisTitle').textContent='Kredensial Panel';
+  $('qrisCredentials').innerHTML=
+    credentialRow('Username',creds.username)+
+    credentialRow('Password',creds.password)+
+    credentialRow('Server ID','#'+creds.serverId)+
+    credentialRow('Nama Server',creds.serverName)+
+    credentialRow('Panel URL',creds.panelUrl);
+  openModal('qrisModal');
+}
+
+/* Hasil panel → notifikasi user + riwayat + toast + modal sukses */
+function deliverPanelResult(s,creds){
+  orders.unshift({
+    id:Date.now(),product:s.productName,qty:1,months:s.months,
+    method:'QRIS (Pakasir)',customer:creds.username,total:s.amount,
+    date:new Date().toISOString(),status:'paid',credentials:creds
+  });
+  persist('orders',orders); renderOrderHistory();
+  notifications.unshift({
+    icon:'fa-server',bg:'bg-emerald-50',color:'text-emerald-600',
+    title:'Panel Anda berhasil dibuat!',
+    desc:`Username: ${creds.username} • Password: ${creds.password} • Server #${creds.serverId} • ${creds.panelUrl}`,
+    time:'Baru saja',unread:true
+  });
+  renderNotifications();
+  logActivity(`Panel dibuat otomatis: ${creds.username} (Order ${s.orderId})`,'fa-server');
+  showToast('Panel <b>'+esc(creds.username)+'</b> berhasil dibuat! Kredensial dikirim ke notifikasi 🔔');
+  showQrisSuccess(creds);
+}
+
+function closeQrisModal(){
+  if(qrisSession){
+    // Modal ditutup saat menunggu → polling lanjut di BACKGROUND.
+    // Kalau user tetap membayar, kredensial tetap terkirim via notifikasi.
+    qrisSession.background=true;
+  }else{
+    stopQrisTimers();
+  }
+  closeModal('qrisModal');
+}
+
+async function cancelQrisOrder(){
+  if(!qrisSession) return;
+  const oid=qrisSession.orderId;
+  stopQrisTimers(); qrisSession=null;
+  try{
+    await fetch(`${API_BASE}/order/cancel`,{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({orderId:oid})
+    });
+  }catch(e){}
+  closeModal('qrisModal');
+  showToast('Pesanan dibatalkan.','info');
+}
+
+function retryQris(){
+  if(!qrisSession){ closeQrisModal(); return; }
+  if(Date.now()>=qrisSession.endsAt){
+    // QR kedaluwarsa → kembali ke modal order untuk buat QR baru
+    stopQrisTimers(); qrisSession=null;
+    closeModal('qrisModal');
+    if(currentOrder) openOrderModal(currentOrder.id);
+  }else{
+    // Gagal sementara (mis. panel gagal dibuat) → poll ulang, server auto-retry
+    $('qrisStateError').classList.add('hidden');
+    $('qrisStateProvisioning').classList.remove('hidden');
+    pollQrisStatus();
+    qrisSession.pollTimer=setInterval(pollQrisStatus,4000);
+  }
+}
+
+/* Lihat kredensial panel dari riwayat pesanan */
+function showPanelCredentials(orderId){
+  const o=orders.find(x=>x.id===orderId);
+  if(o&&o.credentials) showQrisSuccess(o.credentials);
+  else showToast('Kredensial tidak tersedia untuk pesanan ini.','error');
+}
+
+/* ---------- Riwayat Pesanan ---------- */
+function renderOrderHistory(){
+  const sec=$('orderHistorySection');
+  if(!orders.length){ sec.classList.add('hidden'); return; }
+  sec.classList.remove('hidden');
+  $('orderHistoryCount').textContent=orders.length+' pesanan';
+  $('orderHistoryList').innerHTML=orders.map(o=>`
+    <div class="p-4 rounded-2xl bg-white/70 border border-white flex flex-col sm:flex-row sm:items-center gap-3 justify-between transition-all hover:bg-white">
+      <div class="min-w-0">
+        <p class="font-bold text-xs text-neutral-900 truncate">${esc(o.product)}</p>
+        <p class="text-[11px] text-neutral-400 mt-0.5">${o.qty}x • ${o.months} bulan • ${esc(o.method)} • ${new Date(o.date).toLocaleDateString('id-ID',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})} • ${esc(o.customer)}</p>
+      </div>
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <span class="font-black text-sm text-neutral-900">${formatRupiah(o.total)}</span>
+        ${o.credentials?`<button onclick="showPanelCredentials(${o.id})" class="text-[10px] font-bold px-2.5 py-1 rounded-full bg-neutral-900 text-white hover:bg-neutral-800 transition-all">Lihat Panel</button>`:''}
+        <button onclick="toggleOrderStatus(${o.id})" class="text-[10px] font-bold px-2.5 py-1 rounded-full transition-all ${o.status==='paid'?'bg-emerald-100 text-emerald-800':'bg-amber-100 text-amber-900'}">${o.status==='paid'?'Lunas':'Menunggu'}</button>
+        <button onclick="deleteOrder(${o.id})" class="admin-only text-neutral-300 hover:text-red-500 p-1 transition-colors" aria-label="Hapus pesanan"><i class="fa-regular fa-trash-can text-xs"></i></button>
+      </div>
+    </div>`).join('');
+}
+function toggleOrderStatus(id){
+  const o=orders.find(x=>x.id===id); if(!o) return;
+  o.status=o.status==='paid'?'pending':'paid';
+  persist('orders',orders); renderOrderHistory();
+  showToast(o.status==='paid'?'Pesanan ditandai <b>LUNAS</b> ✓':'Status dikembalikan ke Menunggu.','info');
+}
+function deleteOrder(id){
+  confirmAction('Hapus Pesanan','Riwayat pesanan ini akan dihapus permanen.',()=>{
+    orders=orders.filter(x=>x.id!==id); persist('orders',orders); renderOrderHistory(); showToast('Pesanan dihapus','info');
+  });
+}
+function clearOrders(){
+  confirmAction('Hapus Semua Riwayat','Seluruh riwayat pesanan akan dihapus dari perangkat ini.',()=>{
+    orders=[]; persist('orders',orders); renderOrderHistory(); showToast('Riwayat pesanan dibersihkan','info');
+  });
+}
+
+/* ---------- INBOX ---------- */
+function updateInboxBadge(){
+  const c=inboxMessages.filter(m=>m.unread).length;
+  const b=$('inboxBadgeCount');
+  b.textContent=c; b.classList.toggle('hidden',c===0);
+  $('inboxUnreadCount').textContent=c+' baru';
+}
+function renderInbox(){
+  $('inboxList').innerHTML=inboxMessages.map(m=>`
+    <button onclick="openMessage(${m.id})" class="w-full text-left p-3 rounded-2xl transition-all border ${selectedMsg&&selectedMsg.id===m.id?'bg-white shadow-sm border-neutral-200':'bg-white/50 hover:bg-white/80 border-transparent'}">
+      <div class="flex items-center gap-3">
+        <div class="relative flex-shrink-0">
+          <img src="${m.avatar}" onerror="avatarFallback(this)" class="w-10 h-10 rounded-xl object-cover border border-white" alt="">
+          ${m.unread?'<span class="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-white"></span>':''}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <p class="font-bold text-xs ${m.unread?'text-neutral-900':'text-neutral-600'} truncate">${esc(m.from)}</p>
+            <span class="text-[10px] text-neutral-400 flex-shrink-0">${m.time}</span>
+          </div>
+          <p class="text-[11px] ${m.unread?'text-neutral-700 font-semibold':'text-neutral-400'} truncate mt-0.5">${esc(m.subject)}</p>
+        </div>
+      </div>
+    </button>`).join('');
+}
+function renderInboxDetail(){
+  const el=$('inboxDetail');
+  if(!selectedMsg){
+    el.innerHTML=`<div class="h-full min-h-[300px] flex flex-col items-center justify-center text-center p-8">
+      <div class="w-16 h-16 rounded-3xl glass-icon-box flex items-center justify-center mb-3"><i class="fa-regular fa-envelope-open text-2xl text-neutral-300"></i></div>
+      <p class="font-bold text-sm text-neutral-700">Pilih pesan untuk dibaca</p>
+      <p class="text-xs text-neutral-400 mt-1">Klik salah satu percakapan di kiri.</p>
+    </div>`;
+    return;
+  }
+  const m=selectedMsg;
+  el.innerHTML=`
+    <div class="flex items-center gap-3 pb-4 border-b border-neutral-200">
+      <button onclick="backToInboxList()" class="lg:hidden w-9 h-9 rounded-xl bg-white border border-neutral-200 flex items-center justify-center text-neutral-600 flex-shrink-0" aria-label="Kembali"><i class="fa-solid fa-arrow-left text-xs"></i></button>
+      <img src="${m.avatar}" onerror="avatarFallback(this)" class="w-10 h-10 rounded-xl object-cover border border-white flex-shrink-0" alt="">
+      <div class="min-w-0"><p class="font-bold text-sm text-neutral-900 truncate">${esc(m.from)}</p><p class="text-[11px] text-neutral-400 truncate">${esc(m.subject)}</p></div>
+    </div>
+    <div class="py-4 space-y-3 overflow-y-auto flex-1 min-h-0">
+      ${m.thread.map(t=>`
+        <div class="flex ${t.me?'justify-end':''}">
+          <div class="max-w-[80%] px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${t.me?'bg-neutral-900 text-white rounded-br-md':'bg-white border border-neutral-200 text-neutral-700 rounded-bl-md'}">
+            ${esc(t.text)}<span class="block text-[9px] ${t.me?'text-neutral-400':'text-neutral-300'} mt-1">${t.time}</span>
+          </div>
+        </div>`).join('')}
+    </div>
+    <form onsubmit="replyMessage(event)" class="pt-3 border-t border-neutral-200 flex gap-2">
+      <input id="replyInput" type="text" placeholder="Tulis balasan..." class="flex-1 min-w-0 px-4 py-2.5 bg-white/80 border border-neutral-200 rounded-2xl text-xs focus:outline-none focus:ring-2 focus:ring-neutral-800">
+      <button type="submit" class="w-11 h-11 rounded-2xl bg-neutral-900 text-white flex items-center justify-center hover:bg-neutral-800 transition-all flex-shrink-0" aria-label="Kirim balasan"><i class="fa-solid fa-paper-plane text-xs"></i></button>
+    </form>`;
+}
+function openMessage(id){
+  selectedMsg=inboxMessages.find(m=>m.id===id);
+  if(selectedMsg) selectedMsg.unread=false;
+  $('inboxPane').classList.add('show-detail');
+  renderInbox(); renderInboxDetail(); updateInboxBadge();
+}
+function backToInboxList(){ $('inboxPane').classList.remove('show-detail'); }
+function replyMessage(e){
+  e.preventDefault();
+  const input=$('replyInput'); const text=input.value.trim();
+  if(!text||!selectedMsg) return;
+  selectedMsg.thread.push({me:true,text,time:new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})});
+  renderInboxDetail(); showToast('Balasan terkirim ke <b>'+esc(selectedMsg.from)+'</b>');
+}
+function markAllInboxRead(){ inboxMessages.forEach(m=>m.unread=false); renderInbox(); updateInboxBadge(); showToast('Semua pesan ditandai dibaca','info'); }
+
+/* ---------- CALENDAR ---------- */
+function seedCalendar(){
+  const now=new Date(), y=now.getFullYear(), m=now.getMonth();
+  calEvents[`${y}-${m}-5`]=[{title:'Maintenance Node SG-02',time:'02:00',type:'server'}];
+  calEvents[`${y}-${m}-12`]=[{title:'Rilis Script Bot WA v3.0',time:'20:00',type:'release'}];
+  calEvents[`${y}-${m}-${Math.min(now.getDate()+3,28)}`]=[{title:'Rapat tim internal',time:'09:00',type:'meeting'}];
+  calEvents[`${y}-${m}-20`]=[{title:'Promo pelanggan baru -20%',time:'00:00',type:'promo'}];
+}
+const evIcon=t=>({server:'fa-server',release:'fa-rocket',meeting:'fa-users',promo:'fa-tags'}[t]||'fa-calendar');
+function renderCalendar(){
+  const y=calDate.getFullYear(), m=calDate.getMonth(), now=new Date();
+  $('calMonthLabel').textContent=calDate.toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  const startDay=new Date(y,m,1).getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  let cells='';
+  for(let i=0;i<startDay;i++) cells+='<div></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const isToday=d===now.getDate()&&m===now.getMonth()&&y===now.getFullYear();
+    const evs=calEvents[`${y}-${m}-${d}`]||[];
+    const dots=evs.slice(0,3).map(()=>'<span class="w-1 h-1 rounded-full bg-amber-500 inline-block"></span>').join(' ');
+    cells+=`<div onclick="selectCalDay(${d})" class="transition-all ${isToday?'bg-neutral-900 text-white shadow-md':selectedCalDay===d?'bg-amber-100 ring-2 ring-amber-400':'bg-white/70 hover:bg-white border border-white'}">
+      <span class="text-xs font-bold ${isToday?'text-white':'text-neutral-800'}">${d}</span>
+      <span class="flex justify-center gap-0.5 mt-1 h-1">${dots}</span>
+    </div>`;
+  }
+  $('calGridDays').innerHTML=cells;
+  renderCalEventList();
+}
+function renderCalEventList(){
+  const y=calDate.getFullYear(), m=calDate.getMonth();
+  const key=`${y}-${m}-${selectedCalDay}`;
+  const evs=calEvents[key]||[];
+  $('calSelectedLabel').textContent=new Date(y,m,selectedCalDay).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long'});
+  const el=$('calEventList');
+  if(!evs.length){
+    el.innerHTML=`<div class="text-center py-6"><i class="fa-regular fa-calendar text-2xl text-neutral-300"></i>
+      <p class="text-xs font-semibold text-neutral-500 mt-2">Tidak ada agenda</p>
+      <p class="text-[11px] text-neutral-400">Tanggal ini bebas — tambahkan agenda lewat form di bawah.</p></div>`;
+    return;
+  }
+  el.innerHTML=evs.map((ev,i)=>`
+    <div class="flex items-center gap-3 p-3 rounded-2xl bg-white/70 border border-white mb-2">
+      <div class="w-9 h-9 rounded-xl bg-neutral-100 flex items-center justify-center flex-shrink-0"><i class="fa-solid ${evIcon(ev.type)} text-neutral-700 text-xs"></i></div>
+      <div class="flex-1 min-w-0"><p class="text-xs font-bold text-neutral-800 truncate">${esc(ev.title)}</p><p class="text-[10px] text-neutral-400">${ev.time} WIB</p></div>
+      <button onclick="deleteCalEvent('${key}',${i})" class="text-neutral-300 hover:text-red-500 p-1 transition-colors" aria-label="Hapus agenda"><i class="fa-regular fa-trash-can text-xs"></i></button>
+    </div>`).join('');
+}
+function selectCalDay(d){ selectedCalDay=d; renderCalendar(); }
+function calShift(n){ calDate=new Date(calDate.getFullYear(),calDate.getMonth()+n,1); selectedCalDay=1; renderCalendar(); }
+function calToday(){ calDate=new Date(); selectedCalDay=calDate.getDate(); renderCalendar(); }
+function addCalEvent(){
+  const input=$('calEventInput'); const title=input.value.trim();
+  if(!title){ showToast('Tulis judul agenda dulu ya.','error'); return; }
+  const y=calDate.getFullYear(), m=calDate.getMonth();
+  const key=`${y}-${m}-${selectedCalDay}`;
+  (calEvents[key]=calEvents[key]||[]).push({title,time:'09:00',type:'custom'});
+  input.value=''; renderCalendar(); showToast('Agenda ditambahkan!');
+}
+function deleteCalEvent(key,i){
+  calEvents[key].splice(i,1);
+  if(!calEvents[key].length) delete calEvents[key];
+  renderCalendar(); showToast('Agenda dihapus','info');
+}
+
+/* ---------- SETTINGS & THEME ---------- */
+function applyProfile(){
+  $('sidebarUserName').textContent=profile.name;
+  $('sidebarUserSub').textContent=profile.email;
+  ['sidebarUserAvatar','headerUserAvatar','teamAvatar'].forEach(id=>{ $(id).src=profile.avatar; });
+  $('notifTargetUser').textContent='User: '+profile.name.split(' ')[0];
+  $('teamName').textContent=profile.name;
+  $('teamEmail').textContent=profile.email;
+}
+function populateSettingsForms(){
+  $('setNama').value=profile.name; $('setEmail').value=profile.email; $('setAvatar').value=profile.avatar;
+  $('setRole').value=profile.role||'admin';
+  $('setStoreName').value=settings.storeName; $('setWa').value=settings.wa;
+  $('setNotifOrder').checked=settings.notifOrder; $('setNotifServer').checked=settings.notifServer;
+}
+function saveSettings(){
+  const name=$('setNama').value.trim(), email=$('setEmail').value.trim();
+  if(name.length<3){ showToast('Nama minimal 3 karakter.','error'); return; }
+  profile.name=name; profile.email=email;
+  profile.avatar=$('setAvatar').value.trim()||profile.avatar;
+  const newRole=$('setRole').value;
+  const roleChanged=newRole!==profile.role;
+  profile.role=newRole;
+  settings.storeName=$('setStoreName').value.trim()||'ANDRI STORE';
+  settings.wa=$('setWa').value.replace(/\D/g,'')||'6281234567890';
+  settings.notifOrder=$('setNotifOrder').checked; settings.notifServer=$('setNotifServer').checked;
+  persist('profile',profile); persist('settings',settings);
+  applyProfile(); if(roleChanged) applyRole();
+  logActivity('Pengaturan disimpan','fa-floppy-disk');
+  showToast('Semua pengaturan berhasil disimpan!');
+}
+function resetData(){
+  if(profile.role!=='admin'){ showToast('Akses ditolak. Khusus Admin.','error'); return; }
+  confirmAction('Reset Semua Data','Semua produk custom, riwayat pesanan, user, profil & pengaturan akan kembali ke default.',()=>{
+    ['andri_products','andri_orders','andri_users','andri_activity','andri_profile','andri_settings'].forEach(k=>localStorage.removeItem(k));
+    showToast('Data direset. Memuat ulang halaman...','info');
+    setTimeout(()=>location.reload(),900);
+  });
+}
+function logoutDashboard(){
+  confirmAction('Keluar dari Dashboard','Sesi login Anda akan diakhiri dan kembali ke halaman login.',()=>{
+    localStorage.removeItem('andri_session');
+    sessionStorage.removeItem('andri_session');
+    window.location.href='halaman_login.html';
+  });
+}
+const themeBtnClass=active=>'px-4 py-2 rounded-2xl text-xs font-bold transition-all '+(active?'bg-neutral-900 text-white shadow-md':'bg-white/70 text-neutral-600 hover:bg-white border border-neutral-200');
+function setTheme(t){
+  settings.theme=t; persist('settings',settings);
+  document.documentElement.classList.toggle('theme-dark',t==='dark');
+  $('themeBtnLight').className=themeBtnClass(t==='light');
+  $('themeBtnDark').className=themeBtnClass(t==='dark');
+  const icon=document.querySelector('#themeToggleBtn i');
+  if(icon) icon.className=t==='dark'?'fa-solid fa-sun text-sm':'fa-solid fa-moon text-sm';
+}
+function toggleTheme(){ setTheme(settings.theme==='dark'?'light':'dark'); }
+
+/* ---------- AI CHAT ---------- */
+const AI_RULES=[
+  {keys:['harga','biaya','price','mahal','murah'],reply:'Daftar harga terbaru:\n• Panel Pterodactyl: Rp 3.000 – Rp 18.000/bulan\n• Script Bot WA/Tele: Rp 20.000 – Rp 50.000\n• Jasa Website: Rp 150.000 – Rp 450.000\nLangsung klik menu SHOP untuk order ya! 🛒'},
+  {keys:['panel','pterodactyl','server','vps'],reply:'Panel Pterodactyl kami pakai node high-speed: anti delay, anti lag, garansi 30 hari & setup 5–15 menit. Tersedia paket 1GB, 2GB, 4GB, sampai Unlimited ✅'},
+  {keys:['bot','whatsapp','telegram'],reply:'Script bot kami full source code (no enc), free update, dan garansi perbaikan bug. Ada bot WA multi-device, auto store, dan bot Telegram downloader/jualan 🤖'},
+  {keys:['web','website','landing','jasa'],reply:'Jasa website meliputi landing page, website toko online, sampai dashboard admin. Responsif di semua device & free revisi 2x 🌐'},
+  {keys:['bayar','payment','qris','dana','ovo','gopay','transfer'],reply:'Pembayaran QRIS bisa pakai e-wallet/m-banking apa pun. Setelah bayar, panel dibuat OTOMATIS dalam ± 10–30 detik — tanpa konfirmasi admin 💳'},
+  {keys:['garansi','warranty','refund'],reply:'Garansi panel 30 hari full — kalau server down/mati kami ganti. Script bot garansi perbaikan bug selamanya 🛡️'},
+  {keys:['order','beli','pesan','cara','checkout'],reply:'Cara order gampang:\n1. Buka menu SHOP\n2. Klik "Bayar via QRIS"\n3. Isi username & scan QR\n4. Panel otomatis dibuat setelah pembayaran 🚀'},
+  {keys:['admin','user','role','akun'],reply:'Di halaman Profile ada 3 sub-tab: Profil Saya, Manajemen User (CRUD user), dan Panel Admin (broadcast, maintenance, backup). Coba ganti mode Admin ⇄ User di pojok atas halaman Profile untuk melihat perbedaan aksesnya! 👥'},
+];
+const AI_CHIPS=['Harga panel?','Cara order?','Metode pembayaran','Garansi?'];
+function aiReply(text){
+  const t=text.toLowerCase();
+  for(const r of AI_RULES){ if(r.keys.some(k=>t.includes(k))) return r.reply; }
+  return 'Maaf, saya belum paham 🙏 Coba tanya soal "harga", "panel", "bot", "website", "pembayaran", atau "garansi". Atau hubungi admin via menu Help & Support ya!';
+}
+function scrollAi(){ const el=$('aiChatMessages'); el.scrollTop=el.scrollHeight; }
+function appendAiMsg(role,html){
+  const w=document.createElement('div');
+  w.className='ai-msg '+role; w.innerHTML=html;
+  $('aiChatMessages').appendChild(w); scrollAi();
+  return w;
+}
+function toggleAiAssistantDrawer(){
+  const open=$('aiChatDrawer').classList.toggle('open');
+  if(open) setTimeout(()=>{ $('aiChatInput').focus(); scrollAi(); },100);
+}
+function pushUser(text){
+  appendAiMsg('user',esc(text));
+  const typing=appendAiMsg('bot','<i class="fa-solid fa-ellipsis fa-fade"></i> <span class="text-neutral-400">mengetik…</span>');
+  setTimeout(()=>{ typing.remove(); appendAiMsg('bot',aiReply(text)); },700);
+}
+function sendAiMessage(e){
+  e.preventDefault();
+  const input=$('aiChatInput'); const text=input.value.trim();
+  if(!text) return;
+  input.value=''; pushUser(text);
+}
+function sendAiQuick(q){ pushUser(q); }
+function initAiChat(){
+  $('aiChatChips').innerHTML=AI_CHIPS.map(c=>`<button type="button" onclick="sendAiQuick('${c}')" class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-white/80 border border-neutral-200 text-neutral-600 hover:bg-neutral-900 hover:text-white transition-all whitespace-nowrap">${c}</button>`).join('');
+  appendAiMsg('bot',`Halo ${esc(profile.name.split(' ')[0])}! 👋 Saya Andri AI Assistant. Tanya saja soal produk, harga, atau cara order — saya bantu 24/7.`);
+}
+
+/* ---------- Greeting ---------- */
+function updateTimeGreeting(){
+  const h=new Date().getHours();
+  $('timeGreetingText').textContent=h<11?'Selamat Pagi':h<15?'Selamat Siang':h<19?'Selamat Sore':'Selamat Malam';
+}
+
+/* ---------- Global listeners ---------- */
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape') return;
+  ['orderModal','productModal','confirmModal','userModal','broadcastModal'].forEach(closeModal);
+  closeQrisModal();
+  closeNotificationMenu();
+  $('aiChatDrawer').classList.remove('open');
+  closeMobileSidebar();
+});
+document.addEventListener('click',e=>{
+  const dd=$('notificationDropdown');
+  if(dd&&!dd.classList.contains('hidden')&&!e.target.closest('#notificationDropdown')&&!e.target.closest('#notifToggleBtn')){
+    dd.classList.add('hidden');
+  }
+});
+
+/* ---------- Init (dengan auth guard) ---------- */
+document.addEventListener('DOMContentLoaded',()=>{
+  loadState();
+
+  // GUARD LOGIN: tanpa sesi → kembali ke halaman login
+  if(REQUIRE_LOGIN){
+    let session=null;
+    try{ session=JSON.parse(localStorage.getItem('andri_session')||sessionStorage.getItem('andri_session')||'null'); }catch(e){}
+    if(!session||!session.role){ window.location.href='halaman_login.html'; return; }
+    // Sinkronkan profil dashboard dengan akun yang login
+    profile.name=session.name||profile.name;
+    profile.email=session.email||profile.email;
+    profile.role=session.role==='admin'?'admin':'user';
+    persist('profile',profile);
+  }
+
+  applyProfile(); populateSettingsForms(); setTheme(settings.theme); applyRole();
+  updateTimeGreeting();
+  renderNotifications(); renderInbox(); renderInboxDetail(); updateInboxBadge();
+  seedCalendar(); renderCalendar();
+  renderShop(); renderOrderHistory();
+  renderUsers(); renderOverviewUsers(); renderActivityLog(); updateMaintenanceUI();
+  initTrafficChart(); initAiChat();
+  switchProfileTab('profil');
+  switchTab('overview');
+});
+</script>
+<script src="fx/fx.js"></script>
+</body>
+</html>
