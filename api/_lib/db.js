@@ -37,6 +37,15 @@ export function initDb() {
       )`,
       `CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status)`,
       `CREATE INDEX IF NOT EXISTS idx_orders_created ON orders(created_at)`,
+      `CREATE TABLE IF NOT EXISTS users (
+        id            INTEGER PRIMARY KEY AUTOINCREMENT,
+        name          TEXT NOT NULL,
+        username      TEXT NOT NULL UNIQUE,
+        email         TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        role          TEXT NOT NULL DEFAULT 'user',
+        created_at    TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+      )`,
       `CREATE TABLE IF NOT EXISTS notifications (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
         type       TEXT NOT NULL DEFAULT 'transaction',
@@ -45,7 +54,10 @@ export function initDb() {
         is_read    INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
       )`,
-    ], 'write').catch(err => { initPromise = null; throw err; });
+    ], 'write')
+      // migrasi untuk DB lama: kolom owner (diabaikan jika sudah ada)
+      .then(() => getDb().execute('ALTER TABLE orders ADD COLUMN owner TEXT').catch(() => {}))
+      .catch(err => { initPromise = null; throw err; });
   }
   return initPromise;
 }
