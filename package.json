@@ -1,0 +1,22 @@
+{
+  "name": "andri-store-api",
+  "version": "1.0.0",
+  "description": "ANDRI STORE \u2014 auth, panel Pterodactyl & QRIS (Vercel + Turso)",
+  "type": "module",
+  "main": "server.js",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "axios": "^1.6.8",
+    "qrcode": "^1.5.3"
+  },
+  "devDependencies": {
+    "express": "^4.19.2"
+  }
+}
