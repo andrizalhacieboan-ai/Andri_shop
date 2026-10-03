@@ -13,8 +13,8 @@ export function getAdminAccount() {
 export function getAuthSecret() {
   let secret = process.env.AUTH_SECRET;
   if (!secret || secret.length < 16) {
-    console.warn('⚠️  AUTH_SECRET belum di-set');
-    secret = 'andri-store-dev-secret';
+    console.warn('⚠️  AUTH_SECRET belum di-set / terlalu pendek — memakai secret dev. WAJIB diganti di produksi!');
+    secret = 'andri-store-dev-secret-ganti-di-produksi';
   }
   return secret;
 }
