@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ANDRI STORE - Sign Up / Sign In</title>
+    <title>ANDRI STORE - Sign Up & Authentication</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -242,7 +242,7 @@
                 </div>
                 <div class="floating-input-bar">
                     <i class="fa-regular fa-envelope text-neutral-500 text-sm mr-3"></i>
-                    <input type="email" id="signup-email" required placeholder="nama@gmail.com" class="w-full bg-transparent text-neutral-800 text-sm focus:outline-none placeholder-neutral-400 font-light">
+                    <input type="email" id="signup-email" required placeholder="nama@email.com" class="w-full bg-transparent text-neutral-800 text-sm focus:outline-none placeholder-neutral-400 font-light">
                 </div>
             </div>
 
@@ -272,7 +272,7 @@
             <div class="relative pt-1">
                 <div class="keycap-row">
                     <div class="keycap"></div><div class="keycap"></div><div class="keycap"></div><div class="keycap"></div>
-                    <div class="keycap-black left-[100px] sm:left-[118px] w-[110px] sm:w-[120px]">CONFIRM PASSW</div>
+                    <div class="keycap-black left-[100px] sm:left-[118px] w-[110px] sm:w-[120px]">CONFIRM PASS</div>
                 </div>
                 <div class="floating-input-bar">
                     <i class="fa-solid fa-shield-halved text-neutral-500 text-xs mr-3"></i>
@@ -418,10 +418,10 @@
                         </div>
                         <div>
                             <h4 class="text-xs font-semibold text-slate-800 flex items-center gap-1.5">
-                                <span id="user-display-name">Andri Store</span>
+                                <span id="user-display-name">Alex Morgan</span>
                                 <span id="admin-badge" class="hidden text-[8px] font-bold bg-slate-800 text-white px-1.5 py-0.5 rounded tracking-widest">ADMIN</span>
                             </h4>
-                            <p id="user-display-email" class="text-[10px] text-slate-500">andri.com</p>
+                            <p id="user-display-email" class="text-[10px] text-slate-500">alex@pulse.co</p>
                         </div>
                     </div>
                     <button onclick="logout()" class="text-slate-400 hover:text-slate-700 p-1.5" title="Logout">
@@ -435,7 +435,7 @@
                 <header class="glass-card rounded-2xl p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
                         <h1 class="text-2xl font-bold text-slate-800 tracking-tight">Overview</h1>
-                        <p class="text-xs text-slate-500 mt-1">Welcome back, <span id="welcome-name">Andri store</span> — here's what's happening today.</p>
+                        <p class="text-xs text-slate-500 mt-1">Welcome back, <span id="welcome-name">Alex</span> — here's what's happening today.</p>
                     </div>
 
                     <div class="flex items-center space-x-3 w-full md:w-auto">
@@ -561,19 +561,6 @@
 
         const API_BASE = '/api'; // ganti 'https://api.domainkamu.com/api' jika frontend & backend terpisah
 
-        // Fallback offline: set FALSE saat produksi agar kredensial admin TIDAK tersimpan di frontend.
-        // true  = halaman tetap bisa login walau server mati (kredensial masih terlihat di source)
-        // false = login admin HANYA lewat server (aman)
-        const ALLOW_OFFLINE_FALLBACK = true;
-
-        const ADMIN_ACCOUNT = {
-            username: 'andriyt',
-            email: 'andrizalhacieboan@gmail.com',
-            password: 'andrihsb2002',
-            name: 'Andri'
-        };
-
-        let registeredUser = null;
         let currentUser = null;
 
         // ===== Toggle Password =====
@@ -613,10 +600,9 @@
             el.classList.add('shake');
         }
 
-        // ===== SIGN UP =====
-        function handleSignUp(event) {
+        // ===== SIGN UP (tersimpan di database Turso lewat API) =====
+        async function handleSignUp(event) {
             event.preventDefault();
-
             const name = document.getElementById('signup-name').value.trim();
             const email = document.getElementById('signup-email').value.trim().toLowerCase();
             const password = document.getElementById('signup-password').value;
@@ -624,27 +610,34 @@
 
             if (!validatePasswordRequirements()) {
                 showToast('Password harus 8+ karakter, ada huruf kapital, dan simbol!', 'error');
-                shakeCard('signup-view');
-                return;
+                shakeCard('signup-view'); return;
             }
             if (password !== confirmPassword) {
                 showToast('Konfirmasi password tidak cocok!', 'error');
-                shakeCard('signup-view');
-                return;
+                shakeCard('signup-view'); return;
             }
-            // Cegah pembajakan identitas admin
-            if (name.toLowerCase() === ADMIN_ACCOUNT.username || email === ADMIN_ACCOUNT.email) {
-                showToast('Username / email ini milik Admin — gunakan yang lain!', 'error');
-                shakeCard('signup-view');
-                return;
+            const btn = document.querySelector('#signup-view button[type="submit"]');
+            const label = btn ? btn.innerHTML : '';
+            if (btn) { btn.disabled = true; btn.style.opacity = '0.7'; btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i>MENDAFTAR...'; }
+            try {
+                const res = await fetch(`${API_BASE}/auth/register`, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, email, password })
+                });
+                const data = await res.json().catch(() => ({}));
+                if (!res.ok || !data.success) {
+                    showToast(data.message || 'Pendaftaran gagal.', 'error');
+                    shakeCard('signup-view'); return;
+                }
+                showToast('Akun berhasil dibuat! Silakan Sign In.', 'success');
+                document.getElementById('login-username').value = data.user.username;
+                document.getElementById('login-password').value = '';
+                setTimeout(() => switchView('login'), 1000);
+            } catch (e) {
+                showToast('Server tidak dapat dihubungi. Coba lagi.', 'error');
+            } finally {
+                if (btn) { btn.disabled = false; btn.style.opacity = ''; btn.innerHTML = label; }
             }
-
-            registeredUser = { name, email, password };
-            localStorage.setItem('andri_registered', JSON.stringify(registeredUser));
-
-            showToast('Akun ANDRI STORE berhasil dibuat! Silakan Sign In.', 'success');
-            document.getElementById('login-username').value = name;
-            setTimeout(() => switchView('login'), 1200);
         }
 
         // ===== LOGIN (API-first) =====
@@ -672,28 +665,10 @@
                 showToast(data.message || 'Username atau password salah!', 'error');
                 shakeCard('login-view');
             } catch (err) {
-                if (ALLOW_OFFLINE_FALLBACK) localLogin(input, password, remember);
-                else showToast('Server tidak dapat dihubungi. Coba lagi nanti.', 'error');
+                showToast('Server tidak dapat dihubungi. Coba lagi nanti.', 'error');
             } finally {
                 setLoginLoading(false);
             }
-        }
-
-        function localLogin(input, password, remember) {
-            const inputLower = input.toLowerCase();
-            if ((inputLower === ADMIN_ACCOUNT.username || inputLower === ADMIN_ACCOUNT.email) &&
-                password === ADMIN_ACCOUNT.password) {
-                loginAs({ name: ADMIN_ACCOUNT.name, email: ADMIN_ACCOUNT.email }, 'admin', remember);
-                return;
-            }
-            if (registeredUser &&
-                (inputLower === registeredUser.name.toLowerCase() || inputLower === registeredUser.email) &&
-                password === registeredUser.password) {
-                loginAs({ name: registeredUser.name, email: registeredUser.email }, 'user', remember);
-                return;
-            }
-            showToast('Username atau password salah!', 'error');
-            shakeCard('login-view');
         }
 
         function loginAs(user, role, remember, token) {
@@ -708,7 +683,7 @@
                 ? 'Selamat datang kembali, Admin ' + user.name + '! 🛡️'
                 : `Selamat datang kembali, ${user.name}!`, 'success');
 
-            setTimeout(() => { switchView('dashboard'); initChart(); }, role === 'admin' ? 500 : 800);
+            setTimeout(() => { location.replace('index.html'); }, 700);
         }
 
         function setLoginLoading(loading) {
@@ -737,19 +712,13 @@
 
         async function restoreSession() {
             const saved = getSavedSession();
-            if (!saved || !saved.name || !saved.role) return;
-            currentUser = { name: saved.name, email: saved.email, role: saved.role };
-            updateUserDisplay();
-            switchView('dashboard');
-            initChart();
-
-            // Validasi token ke server di background — auto-logout jika kedaluwarsa
-            if (saved.token) {
-                try {
-                    const res = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: 'Bearer ' + saved.token } });
-                    if (res.status === 401) { showToast('Sesi kedaluwarsa, silakan login ulang.', 'info'); logout(); }
-                } catch (e) { /* offline: pertahankan sesi lokal */ }
-            }
+            if (!saved) return;
+            if (!saved.token) { localStorage.removeItem('andri_session'); sessionStorage.removeItem('andri_session'); return; }
+            try {
+                const res = await fetch(`${API_BASE}/auth/me`, { headers: { Authorization: 'Bearer ' + saved.token } });
+                if (res.ok) { location.replace('index.html'); return; }
+                if (res.status === 401) { localStorage.removeItem('andri_session'); sessionStorage.removeItem('andri_session'); }
+            } catch (e) { /* offline: tetap di halaman login */ }
         }
 
         function logout() {
@@ -827,8 +796,7 @@
 
         // ===== Init: muat user terdaftar + pulihkan sesi =====
         (function initAuth() {
-            try { registeredUser = JSON.parse(localStorage.getItem('andri_registered') || 'null'); }
-            catch (e) { registeredUser = null; }
+            localStorage.removeItem('andri_registered'); // sisa data lama (password polos) dibersihkan
             restoreSession();
         })();
     </script>
