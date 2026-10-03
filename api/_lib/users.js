@@ -1,53 +1,47 @@
-// Akun pelanggan (JSON) — password di-hash dengan scrypt (bawaan Node, tanpa dependency).
+// Akun pengguna di Turso. Password di-hash scrypt + salt acak (tidak pernah disimpan polos).
 import crypto from 'crypto';
-import { promisify } from 'util';
-import { db, save } from './jsondb.js';
+import { getDb, initDb } from './db.js';
 
-const scrypt = promisify(crypto.scrypt);
+const scrypt = (p, s) => new Promise((ok, no) => crypto.scrypt(p, s, 64, (e, k) => e ? no(e) : ok(k)));
 
-export async function hashPassword(password) {
-  const salt = crypto.randomBytes(16);
-  const key = await scrypt(password, salt, 64);
-  return `scrypt$${salt.toString('base64')}$${key.toString('base64')}`;
+export async function hashPassword(pw) {
+  const salt = crypto.randomBytes(16).toString('hex');
+  return `s1$${salt}$${(await scrypt(pw, salt)).toString('hex')}`;
+}
+export async function verifyPassword(pw, stored) {
+  const [v, salt, h] = String(stored || '').split('$');
+  if (v !== 's1' || !salt || !h) return false;
+  const k = await scrypt(pw, salt), b = Buffer.from(h, 'hex');
+  return b.length === k.length && crypto.timingSafeEqual(b, k);
 }
 
-export async function verifyPassword(password, stored) {
-  try {
-    const [alg, s, h] = String(stored).split('$');
-    if (alg !== 'scrypt') return false;
-    const expected = Buffer.from(h, 'base64');
-    const key = await scrypt(password, Buffer.from(s, 'base64'), expected.length);
-    return crypto.timingSafeEqual(key, expected);
-  } catch { return false; }
-}
-
-// Hash palsu untuk menyamakan waktu respons saat user tidak ditemukan (anti user-enumeration)
-export const DUMMY_HASH = await hashPassword(crypto.randomBytes(8).toString('hex'));
-
-export function findUser(identifier) {
-  const id = String(identifier || '').trim().toLowerCase();
-  if (!id) return null;
-  return Object.values(db().users).find(u => u.nameLower === id || u.email === id) || null;
+export function validateSignup({ name, email, password }) {
+  const username = String(name || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  if (!/^[a-z0-9 ._-]{3,30}$/.test(username)) return 'Nama/username 3–30 karakter (huruf, angka, spasi, . _ -)';
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(email || ''))) return 'Format email tidak valid';
+  const p = String(password || '');
+  if (p.length < 8 || !/[A-Z]/.test(p) || !/[^A-Za-z0-9\s]/.test(p)) return 'Password minimal 8 karakter, ada huruf kapital dan simbol';
+  return null;
 }
 
 export async function createUser({ name, email, password }) {
-  const d = db();
-  const nameLower = name.toLowerCase();
-  const mail = email.toLowerCase();
-  if (Object.values(d.users).some(u => u.nameLower === nameLower || u.email === mail)) {
-    return { error: 'duplicate' };
+  await initDb();
+  const username = String(name).trim().toLowerCase().replace(/\s+/g, ' ');
+  try {
+    const r = await getDb().execute({
+      sql: "INSERT INTO users (name, username, email, password_hash, role) VALUES (?,?,?,?, 'user')",
+      args: [String(name).trim(), username, String(email).trim().toLowerCase(), await hashPassword(password)],
+    });
+    return { id: Number(r.lastInsertRowid), name: String(name).trim(), username, email: String(email).trim().toLowerCase(), role: 'user' };
+  } catch (e) {
+    if (/UNIQUE/i.test(e.message)) throw Object.assign(new Error('Username atau email sudah terdaftar'), { code: 'DUP' });
+    throw e;
   }
-  const passwordHash = await hashPassword(password);
-  // cek ulang setelah await (hash butuh waktu) agar tetap unik
-  if (Object.values(d.users).some(u => u.nameLower === nameLower || u.email === mail)) {
-    return { error: 'duplicate' };
-  }
-  d.seq.user += 1;
-  const user = {
-    id: `u_${d.seq.user}`, name, nameLower, email: mail, passwordHash,
-    createdAt: new Date().toISOString(),
-  };
-  d.users[user.id] = user;
-  save();
-  return { user: { id: user.id, name: user.name, email: user.email } };
+}
+
+export async function findUser(identifier) {
+  await initDb();
+  const id = String(identifier || '').trim().toLowerCase().replace(/\s+/g, ' ');
+  const { rows } = await getDb().execute({ sql: 'SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1', args: [id, id] });
+  return rows[0] || null;
 }
