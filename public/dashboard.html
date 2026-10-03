@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="ANDRI STORE — Panel Pterodactyl high-speed, script bot WhatsApp & Telegram, dan jasa website profesional. Bayar QRIS, panel dibuat otomatis.">
+<title>ANDRI STORE — Server Kencang, Bot Pintar, Harga Bersahabat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<script>
+tailwind.config = {
+  theme: { extend: {
+    fontFamily: { sans: ['Inter', 'sans-serif'] },
+    colors: { brand: {50:'#fbf9f5',100:'#f5f0e6',500:'#262626',600:'#171717',700:'#0a0a0a'} }
+  } }
+}
+</script>
+
+<style>
+:root{
+  --bg-gradient: linear-gradient(135deg,#f5f2eb 0%,#ece5d8 35%,#e2d9c8 70%,#d8cebc 100%);
+  --glass-bg: rgba(253,251,247,.88);
+  --glass-card-bg: rgba(255,254,250,.95);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg-gradient);color:#2b2720;min-height:100vh;overflow-x:hidden}
+
+/* ====== DARK THEME (sinkron dengan dashboard via localStorage andri_settings) ====== */
+html.theme-dark{
+  --bg-gradient: linear-gradient(135deg,#1f1f1f 0%,#1a1a1a 40%,#141414 75%,#0f0f0f 100%);
+  --glass-bg: rgba(28,28,28,.86);
+  --glass-card-bg: rgba(34,34,34,.94);
+}
+html.theme-dark body{background:var(--bg-gradient) !important;color:#f5f5f5 !important}
+html.theme-dark .blob{opacity:.05}
+html.theme-dark .glass-panel,html.theme-dark .glass-card{color:#f5f5f5;border-color:rgba(255,255,255,.08)}
+html.theme-dark .bg-white,html.theme-dark .bg-white\/60,html.theme-dark .bg-white\/70,html.theme-dark .bg-white\/80{background:rgba(38,38,38,.92) !important}
+html.theme-dark .bg-neutral-100,html.theme-dark .bg-neutral-50,html.theme-dark .bg-stone-100{background:#262626 !important}
+html.theme-dark .text-neutral-900,html.theme-dark .text-neutral-800,html.theme-dark .text-neutral-700,html.theme-dark .text-neutral-600{color:#f5f5f5 !important}
+html.theme-dark .text-neutral-500,html.theme-dark .text-neutral-400,html.theme-dark .text-neutral-300{color:#a3a3a3 !important}
+html.theme-dark .border-white,html.theme-dark .border-neutral-200,html.theme-dark .border-neutral-200\/80{border-color:rgba(255,255,255,.1) !important}
+html.theme-dark .glass-icon-box{background:linear-gradient(135deg,#2e2e2e,#262626);border-color:rgba(255,255,255,.08)}
+html.theme-dark .hero-bar{background:#f5f5f5}
+html.theme-dark .hero-bar.alt{background:#d97706}
+
+.glass-panel{background:var(--glass-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,.9);box-shadow:0 12px 32px -6px rgba(60,50,40,.06),0 4px 12px -2px rgba(60,50,40,.03)}
+.glass-card{background:var(--glass-card-bg);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.95);box-shadow:0 10px 28px -4px rgba(70,60,50,.05),inset 0 1px 1px rgba(255,255,255,.8)}
+.glass-icon-box{background:linear-gradient(135deg,rgba(255,255,255,.95),rgba(245,240,230,.6));box-shadow:inset 0 1px 1px #fff,0 4px 10px rgba(60,50,40,.04);border:1px solid rgba(255,255,255,.9)}
+
+/* Blobs (sama seperti dashboard) */
+.blob{position:absolute;border-radius:50%;filter:blur(90px);z-index:-1;opacity:.55;animation:blobFloat 12s infinite alternate ease-in-out}
+.blob-1{top:-5%;left:8%;width:380px;height:380px;background:#e8ded0}
+.blob-2{top:35%;left:-6%;width:420px;height:420px;background:#ded2c0}
+.blob-3{bottom:5%;right:5%;width:450px;height:450px;background:#e3d7c5}
+.blob-4{top:15%;right:12%;width:320px;height:320px;background:#f0e6d6}
+@keyframes blobFloat{0%{transform:translateY(0) scale(1)}100%{transform:translateY(18px) scale(1.04)}}
+
+/* Tombol utama (nuansa btn-3d halaman login) */
+.btn-primary{background:#171717;color:#fff;box-shadow:0 8px 18px rgba(23,23,23,.25),inset 0 1px 1px rgba(255,255,255,.25);transition:all .15s ease}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 24px rgba(23,23,23,.32),inset 0 1px 1px rgba(255,255,255,.35)}
+.btn-primary:active{transform:translateY(1px);box-shadow:0 4px 8px rgba(23,23,23,.2)}
+
+/* Reveal saat scroll */
+.reveal{opacity:0;transform:translateY(26px);transition:opacity .7s ease,transform .7s cubic-bezier(.16,1,.3,1)}
+.reveal.show{opacity:1;transform:none}
+
+/* Bar chart hero */
+.hero-bar{width:100%;background:#171717;border-radius:6px 6px 2px 2px;transform-origin:bottom;animation:growBar .9s cubic-bezier(.16,1,.3,1) backwards}
+.hero-bar.alt{background:#d97706;animation-delay:.15s}
+@keyframes growBar{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+
+/* Chip mengambang di hero */
+.float-chip{animation:floatY 5s ease-in-out infinite}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+html{scroll-behavior:smooth}
+section{scroll-margin-top:5.5rem}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-thumb{background:rgba(140,130,115,.3);border-radius:10px}
+</style>
+<link rel="stylesheet" href="fx/fx.css">
+</head>
+
+<body class="antialiased relative selection:bg-neutral-900 selection:text-white">
+
+<div class="blob blob-1"></div><div class="blob blob-2"></div><div class="blob blob-3"></div><div class="blob blob-4"></div>
+
+<!-- ================= NAVBAR ================= -->
+<nav class="sticky top-2 sm:top-3 z-40 max-w-[1200px] mx-auto px-1">
+  <div class="glass-panel rounded-3xl px-4 sm:px-6 py-3 flex items-center justify-between">
+    <a href="#beranda" class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-2xl bg-neutral-900 p-0.5 shadow-md flex items-center justify-center">
+        <div class="w-full h-full bg-neutral-800 rounded-[14px] flex items-center justify-center"><i class="fa-solid fa-server text-white text-base"></i></div>
+      </div>
+      <div>
+        <h1 class="font-black text-base sm:text-lg tracking-tight text-neutral-900 uppercase leading-none">ANDRI STORE</h1>
+        <p class="text-[9px] text-neutral-400 font-semibold tracking-widest">CONSOLE & SHOP</p>
+      </div>
+    </a>
+
+    <div class="hidden lg:flex items-center gap-1">
+      <a href="#beranda" class="px-4 py-2 text-xs font-bold text-neutral-600 hover:text-neutral-900 hover:bg-white/60 rounded-2xl transition-all">Beranda</a>
+      <a href="#layanan" class="px-4 py-2 text-xs font-bold text-neutral-600 hover:text-neutral-900 hover:bg-white/60 rounded-2xl transition-all">Layanan</a>
+      <a href="#keunggulan" class="px-4 py-2 text-xs font-bold text-neutral-600 hover:text-neutral-900 hover:bg-white/60 rounded-2xl transition-all">Keunggulan</a>
+      <a href="#testimoni" class="px-4 py-2 text-xs font-bold text-neutral-600 hover:text-neutral-900 hover:bg-white/60 rounded-2xl transition-all">Testimoni</a>
+    </div>
+
+    <div class="flex items-center gap-2">
+      <button onclick="toggleTheme()" id="themeToggleBtn" class="w-10 h-10 rounded-2xl bg-white/80 border border-neutral-200/80 flex items-center justify-center text-neutral-700 hover:text-neutral-900 hover:bg-white transition-all shadow-sm" aria-label="Ganti tema"><i class="fa-solid fa-moon text-sm"></i></button>
+      <a href="halaman_login.html" class="hidden sm:flex px-4 py-2.5 rounded-2xl text-xs font-bold text-neutral-700 hover:text-neutral-900 bg-white/80 border border-neutral-200/80 hover:bg-white transition-all items-center"><i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i>Masuk</a>
+      <a href="halaman_login.html" data-cta class="btn-primary hidden sm:flex px-5 py-2.5 rounded-2xl text-xs font-bold items-center gap-2 whitespace-nowrap">Mulai Sekarang<i class="fa-solid fa-arrow-right text-[10px]"></i></a>
+      <button onclick="toggleMobileMenu()" class="lg:hidden w-10 h-10 rounded-2xl bg-white/80 border border-neutral-200/80 flex items-center justify-center text-neutral-700" aria-label="Menu"><i class="fa-solid fa-bars"></i></button>
+    </div>
+  </div>
+
+  <!-- Menu mobile -->
+  <div id="mobileMenu" class="hidden lg:hidden glass-panel rounded-3xl mt-2 p-4 space-y-1">
+    <a href="#beranda" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-2xl text-xs font-bold text-neutral-700 hover:bg-white/60 transition-all"><i class="fa-solid fa-house mr-2 w-4"></i>Beranda</a>
+    <a href="#layanan" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-2xl text-xs font-bold text-neutral-700 hover:bg-white/60 transition-all"><i class="fa-solid fa-box-open mr-2 w-4"></i>Layanan</a>
+    <a href="#keunggulan" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-2xl text-xs font-bold text-neutral-700 hover:bg-white/60 transition-all"><i class="fa-solid fa-award mr-2 w-4"></i>Keunggulan</a>
+    <a href="#testimoni" onclick="toggleMobileMenu()" class="block px-4 py-3 rounded-2xl text-xs font-bold text-neutral-700 hover:bg-white/60 transition-all"><i class="fa-solid fa-quote-left mr-2 w-4"></i>Testimoni</a>
+    <div class="pt-2 border-t border-neutral-200 flex gap-2">
+      <a href="halaman_login.html" class="flex-1 text-center px-4 py-3 rounded-2xl text-xs font-bold text-neutral-700 bg-white/80 border border-neutral-200"><i class="fa-solid fa-arrow-right-to-bracket mr-1.5"></i>Masuk</a>
+      <a href="halaman_login.html" data-cta class="flex-1 text-center btn-primary px-4 py-3 rounded-2xl text-xs font-bold">Mulai Sekarang</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ================= HERO ================= -->
+<section id="beranda" class="max-w-[1200px] mx-auto px-4 sm:px-6 pt-10 sm:pt-16 pb-8">
+  <div class="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+
+    <!-- Kiri: copy -->
+    <div class="reveal show">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/70 border border-white shadow-sm mb-5">
+        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-[11px] font-bold text-neutral-700">Dipercaya <b class="text-neutral-900">1.200+</b> pelanggan aktif</span>
+      </div>
+
+      <h1 class="text-4xl sm:text-5xl xl:text-6xl font-black text-neutral-900 tracking-tight leading-[1.05]">
+        Server Kencang,<br>Bot Pintar,<br>
+        <span class="relative inline-block">
+          <span class="relative z-10">Harga Bersahabat.</span>
+          <span class="absolute bottom-1 left-0 right-0 h-3 sm:h-4 bg-amber-200/70 -rotate-1 rounded"></span>
+        </span>
+      </h1>
+
+      <p class="mt-5 text-sm sm:text-base text-neutral-600 leading-relaxed max-w-xl">
+        <b class="text-neutral-900">ANDRI STORE</b> adalah toko digital all-in-one untuk kebutuhan online Anda —
+        panel <b>Pterodactyl high-speed</b>, script <b>bot WhatsApp & Telegram</b> siap pakai, hingga
+        <b>jasa website profesional</b>. Bayar via QRIS, dan panel Anda <b>dibuat otomatis oleh sistem</b> dalam hitungan detik. Tanpa menunggu, tanpa ribet.
+      </p>
+
+      <div class="mt-7 flex flex-col sm:flex-row gap-3">
+        <a href="halaman_login.html" data-cta class="btn-primary px-8 py-4 rounded-2xl text-sm font-bold flex items-center justify-center gap-2">
+          <i class="fa-solid fa-rocket"></i><span>Mulai Sekarang</span><i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+        <a href="#layanan" class="px-8 py-4 rounded-2xl text-sm font-bold text-neutral-800 bg-white/80 border border-neutral-200 hover:bg-white transition-all flex items-center justify-center gap-2 shadow-sm">
+          <i class="fa-solid fa-box-open text-neutral-900"></i><span>Lihat Layanan</span>
+        </a>
+      </div>
+
+      <div class="mt-8 flex flex-wrap items-center gap-x-6 gap-y-3">
+        <div class="flex items-center gap-2 text-xs font-bold text-neutral-700"><i class="fa-solid fa-shield-halved text-emerald-600"></i>Garansi 30 Hari</div>
+        <div class="flex items-center gap-2 text-xs font-bold text-neutral-700"><i class="fa-solid fa-qrcode text-neutral-900"></i>QRIS Otomatis</div>
+        <div class="flex items-center gap-2 text-xs font-bold text-neutral-700"><i class="fa-solid fa-headset text-amber-600"></i>Support 24/7</div>
+      </div>
+    </div>
+
+    <!-- Kanan: mockup console -->
+    <div class="relative reveal show" style="transition-delay:.15s">
+      <div class="glass-card rounded-3xl p-5 sm:p-6 shadow-2xl relative">
+        <div class="flex items-center gap-2 mb-4">
+          <span class="w-3 h-3 rounded-full bg-red-400"></span>
+          <span class="w-3 h-3 rounded-full bg-amber-400"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+          <span class="ml-3 text-[10px] font-bold text-neutral-400 tracking-widest">CONSOLE.ANDRISTORE.CO</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="bg-white/70 rounded-2xl p-4">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-[10px] font-bold text-neutral-500">SERVER ONLINE</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            <p class="text-2xl font-black text-neutral-900">24<span class="text-sm font-bold text-neutral-400">/26</span></p>
+          </div>
+          <div class="bg-white/70 rounded-2xl p-4">
+            <span class="text-[10px] font-bold text-neutral-500">UPTIME</span>
+            <p class="text-2xl font-black text-emerald-700">99.98<span class="text-sm font-bold text-neutral-400">%</span></p>
+          </div>
+        </div>
+
+        <div class="bg-white/70 rounded-2xl p-4">
+          <div class="flex items-center justify-between mb-3">
+            <span class="text-[10px] font-bold text-neutral-700">TRAFFIC OVERVIEW</span>
+            <span class="text-[9px] font-bold text-neutral-400">LAST 30 DAYS</span>
+          </div>
+          <div class="flex items-end gap-1.5 h-28">
+            <div class="hero-bar" style="height:35%;animation-delay:.05s"></div>
+            <div class="hero-bar alt" style="height:55%"></div>
+            <div class="hero-bar" style="height:42%;animation-delay:.1s"></div>
+            <div class="hero-bar alt" style="height:70%;animation-delay:.05s"></div>
+            <div class="hero-bar" style="height:52%;animation-delay:.2s"></div>
+            <div class="hero-bar alt" style="height:85%;animation-delay:.1s"></div>
+            <div class="hero-bar" style="height:64%;animation-delay:.3s"></div>
+            <div class="hero-bar alt" style="height:48%;animation-delay:.15s"></div>
+            <div class="hero-bar" style="height:78%;animation-delay:.25s"></div>
+            <div class="hero-bar alt" style="height:66%;animation-delay:.05s"></div>
+            <div class="hero-bar" style="height:92%;animation-delay:.35s"></div>
+            <div class="hero-bar alt" style="height:58%;animation-delay:.2s"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chip mengambang -->
+      <div class="float-chip absolute -top-4 -right-2 sm:-right-5 glass-card rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2">
+        <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-circle-check text-sm"></i></span>
+        <div><p class="text-[11px] font-black text-neutral-900 leading-none">Panel dibuat otomatis</p><p class="text-[9px] text-neutral-400 mt-0.5">± 9 detik setelah bayar</p></div>
+      </div>
+      <div class="float-chip absolute -bottom-4 -left-2 sm:-left-6 glass-card rounded-2xl px-4 py-2.5 shadow-lg flex items-center gap-2" style="animation-delay:1.2s">
+        <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0"><i class="fa-solid fa-qrcode text-sm"></i></span>
+        <div><p class="text-[11px] font-black text-neutral-900 leading-none">QRIS Verified</p><p class="text-[9px] text-neutral-400 mt-0.5">Semua e-wallet & m-banking</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= STATISTIK ================= -->
+<section class="max-w-[1200px] mx-auto px-4 sm:px-6 py-10">
+  <div class="text-center mb-8 reveal">
+    <h2 class="text-2xl sm:text-3xl font-black text-neutral-900 tracking-tight">ANDRI STORE dalam Angka</h2>
+    <p class="text-xs sm:text-sm text-neutral-500 mt-2">Bukan janji — ini buktinya.</p>
+  </div>
+
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+    <div class="glass-card rounded-3xl p-5 sm:p-6 text-center reveal">
+      <div class="w-12 h-12 mx-auto rounded-2xl glass-icon-box flex items-center justify-center text-neutral-900 mb-3"><i class="fa-solid fa-users text-lg"></i></div>
+      <p class="text-3xl sm:text-4xl font-black text-neutral-900 tracking-tight"><span class="stat-num" data-target="1248" data-suffix="+">0</span></p>
+      <p class="text-[11px] font-bold text-neutral-400 tracking-widest mt-1">TOTAL PELANGGAN</p>
+    </div>
+    <div class="glass-card rounded-3xl p-5 sm:p-6 text-center reveal" style="transition-delay:.1s">
+      <div class="w-12 h-12 mx-auto rounded-2xl glass-icon-box flex items-center justify-center text-neutral-900 mb-3"><i class="fa-solid fa-server text-lg"></i></div>
+      <p class="text-3xl sm:text-4xl font-black text-neutral-900 tracking-tight"><span class="stat-num" data-target="26">0</span></p>
+      <p class="text-[11px] font-bold text-neutral-400 tracking-widest mt-1">SERVER AKTIF</p>
+    </div>
+    <div class="glass-card rounded-3xl p-5 sm:p-6 text-center reveal" style="transition-delay:.2s">
+      <div class="w-12 h-12 mx-auto rounded-2xl glass-icon-box flex items-center justify-center text-neutral-900 mb-3"><i class="fa-solid fa-cart-shopping text-lg"></i></div>
+      <p class="text-3xl sm:text-4xl font-black text-neutral-900 tracking-tight"><span class="stat-num" data-target="3500" data-suffix="+">0</span></p>
+      <p class="text-[11px] font-bold text-neutral-400 tracking-widest mt-1">TOTAL TRANSAKSI</p>
+    </div>
+    <div class="glass-card rounded-3xl p-5 sm:p-6 text-center reveal" style="transition-delay:.3s">
+      <div class="w-12 h-12 mx-auto rounded-2xl glass-icon-box flex items-center justify-center text-neutral-900 mb-3"><i class="fa-solid fa-chart-line text-lg"></i></div>
+      <p class="text-3xl sm:text-4xl font-black text-emerald-700 tracking-tight"><span class="stat-num" data-target="99.98" data-decimals="2" data-suffix="%">0</span></p>
+      <p class="text-[11px] font-bold text-neutral-400 tracking-widest mt-1">UPTIME NETWORK</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TENTANG (Apa itu ANDRI STORE) ================= -->
+<section id="tentang" class="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
+  <div class="grid lg:grid-cols-2 gap-10 items-center">
+    <div class="reveal">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-900 text-white font-bold text-[10px] tracking-widest uppercase mb-4">
+        <i class="fa-solid fa-circle-info text-amber-300"></i>Tentang Kami
+      </div>
+      <h2 class="text-2xl sm:text-4xl font-black text-neutral-900 tracking-tight leading-tight">Apa itu ANDRI STORE?</h2>
+      <p class="mt-4 text-sm sm:text-base text-neutral-600 leading-relaxed">
+        ANDRI STORE adalah <b class="text-neutral-900">platform jual-beli produk digital</b> yang fokus pada tiga hal:
+        kecepatan, otomatisasi, dan harga yang ramah kantong. Kami menjual panel server Pterodactyl untuk
+        hosting bot & aplikasi Anda, script bot WhatsApp/Telegram siap pakai untuk jualan otomatis, serta jasa
+        pembuatan website untuk bisnis yang ingin tampil profesional.
+      </p>
+      <p class="mt-3 text-sm sm:text-base text-neutral-600 leading-relaxed">
+        Yang membedakan kami: setelah Anda membayar via <b class="text-neutral-900">QRIS</b>, sistem kami
+        <b class="text-neutral-900">langsung membuat panel secara otomatis</b> — username, password, dan server
+        dikirim ke notifikasi akun Anda dalam hitungan detik. Tidak perlu chat admin, tidak perlu antri.
+      </p>
+      <div class="grid sm:grid-cols-2 gap-3 mt-6">
+        <div class="flex items-start gap-3 bg-white/70 border border-white rounded-2xl p-3.5"><i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i><p class="text-xs font-semibold text-neutral-700 leading-snug">Seller terverifikasi dengan rating <b>4.9/5</b></p></div>
+        <div class="flex items-start gap-3 bg-white/70 border border-white rounded-2xl p-3.5"><i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i><p class="text-xs font-semibold text-neutral-700 leading-snug">Pembayaran <b>QRIS otomatis</b> — tanpa konfirmasi manual</p></div>
+        <div class="flex items-start gap-3 bg-white/70 border border-white rounded-2xl p-3.5"><i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i><p class="text-xs font-semibold text-neutral-700 leading-snug">Dashboard console pribadi untuk kelola pesanan</p></div>
+        <div class="flex items-start gap-3 bg-white/70 border border-white rounded-2xl p-3.5"><i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i><p class="text-xs font-semibold text-neutral-700 leading-snug">Sudah beroperasi sejak <b>2024</b> & terus bertumbuh</p></div>
+      </div>
+    </div>
+
+    <!-- Log otomatisasi -->
+    <div class="reveal" style="transition-delay:.15s">
+      <div class="glass-card rounded-3xl p-6 shadow-xl">
+        <div class="flex items-center gap-2 text-neutral-400 mb-5 pb-3 border-b border-neutral-200">
+          <i class="fa-solid fa-terminal text-xs"></i>
+          <span class="text-[10px] font-bold tracking-widest">AUTO-PROVISION.LOG — TRANSAKSI NYATA</span>
+        </div>
+        <div class="space-y-4 text-xs">
+          <div class="flex items-start gap-3"><span class="text-neutral-400 font-mono text-[10px] mt-0.5">[12:04:01]</span><span><i class="fa-solid fa-circle-check text-emerald-500 mr-1.5"></i>Pembayaran QRIS diterima — <b class="text-neutral-900">Rp 7.000</b></span></div>
+          <div class="flex items-start gap-3"><span class="text-neutral-400 font-mono text-[10px] mt-0.5">[12:04:03]</span><span><i class="fa-solid fa-circle-check text-emerald-500 mr-1.5"></i>Membuat user panel: <b class="text-neutral-900 font-mono">budi_gaming</b></span></div>
+          <div class="flex items-start gap-3"><span class="text-neutral-400 font-mono text-[10px] mt-0.5">[12:04:09]</span><span><i class="fa-solid fa-circle-check text-emerald-500 mr-1.5"></i>Server <b class="text-neutral-900">#128 — Panel 4 GB</b> aktif</span></div>
+          <div class="flex items-start gap-3"><span class="text-neutral-400 font-mono text-[10px] mt-0.5">[12:04:10]</span><span><i class="fa-solid fa-bell text-amber-500 mr-1.5"></i>Kredensial terkirim ke notifikasi user 🔔</span></div>
+          <div class="pt-3 border-t border-neutral-200">
+            <p class="text-emerald-600 font-black text-sm"><i class="fa-solid fa-bolt mr-1.5"></i>Selesai dalam 9 detik — tanpa konfirmasi admin!</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= LAYANAN ================= -->
+<section id="layanan" class="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
+  <div class="text-center mb-10 reveal">
+    <h2 class="text-2xl sm:text-4xl font-black text-neutral-900 tracking-tight">Layanan & Produk Unggulan</h2>
+    <p class="text-xs sm:text-sm text-neutral-500 mt-2">Semua bisa diorder langsung dari dashboard — bayar QRIS, langsung jadi.</p>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-5 sm:gap-6">
+    <!-- Panel -->
+    <div class="glass-card rounded-3xl p-6 flex flex-col reveal hover:border-neutral-900 hover:shadow-xl transition-all">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-neutral-900 text-white flex items-center justify-center"><i class="fa-solid fa-server text-lg"></i></div>
+        <span class="text-[10px] font-extrabold bg-amber-100 text-amber-900 px-2.5 py-1 rounded-full">TERLARIS</span>
+      </div>
+      <h3 class="text-lg font-black text-neutral-900">Panel Pterodactyl</h3>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Server high-speed untuk hosting bot, aplikasi, dan website Anda. Anti delay, anti lag, anti suspend.</p>
+      <p class="mt-4 text-xs text-neutral-400 font-semibold">MULAI DARI</p>
+      <p class="text-3xl font-black text-neutral-900">Rp 3.000<span class="text-xs font-bold text-neutral-400"> /bulan</span></p>
+      <ul class="mt-4 space-y-2 text-xs text-neutral-600 pt-4 border-t border-neutral-200">
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Paket 1 GB s/d Unlimited</li>
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Setup otomatis 5–15 menit</li>
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Garansi full 30 hari</li>
+      </ul>
+      <a href="halaman_login.html" data-cta class="mt-6 btn-primary w-full py-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-cart-shopping"></i>Order Sekarang</a>
+    </div>
+
+    <!-- Bot -->
+    <div class="glass-card rounded-3xl p-6 flex flex-col reveal hover:border-neutral-900 hover:shadow-xl transition-all" style="transition-delay:.12s">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center"><i class="fa-solid fa-robot text-lg"></i></div>
+        <span class="text-[10px] font-extrabold bg-emerald-50 text-emerald-800 px-2.5 py-1 rounded-full">SIAP PAKAI</span>
+      </div>
+      <h3 class="text-lg font-black text-neutral-900">Script Bot WA & Telegram</h3>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Bot jualan otomatis 24 jam, downloader, dan auto post. Full source code tanpa enkripsi.</p>
+      <p class="mt-4 text-xs text-neutral-400 font-semibold">MULAI DARI</p>
+      <p class="text-3xl font-black text-neutral-900">Rp 20.000<span class="text-xs font-bold text-neutral-400"> /sekali bayar</span></p>
+      <ul class="mt-4 space-y-2 text-xs text-neutral-600 pt-4 border-t border-neutral-200">
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Bot WA multi-device & auto store</li>
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Bot Telegram downloader + auto post</li>
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Free update & garansi bug selamanya</li>
+      </ul>
+      <a href="halaman_login.html" data-cta class="mt-6 btn-primary w-full py-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-cart-shopping"></i>Order Sekarang</a>
+    </div>
+
+    <!-- Website -->
+    <div class="glass-card rounded-3xl p-6 flex flex-col reveal hover:border-neutral-900 hover:shadow-xl transition-all" style="transition-delay:.24s">
+      <div class="flex items-center justify-between mb-4">
+        <div class="w-12 h-12 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center"><i class="fa-solid fa-code text-lg"></i></div>
+        <span class="text-[10px] font-extrabold bg-neutral-100 text-neutral-700 px-2.5 py-1 rounded-full">PROFESIONAL</span>
+      </div>
+      <h3 class="text-lg font-black text-neutral-900">Jasa Pembuatan Website</h3>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Landing page sampai toko online + dashboard admin. Responsif di semua device.</p>
+      <p class="mt-4 text-xs text-neutral-400 font-semibold">MULAI DARI</p>
+      <p class="text-3xl font-black text-neutral-900">Rp 150.000<span class="text-xs font-bold text-neutral-400"> /sekali bayar</span></p>
+      <ul class="mt-4 space-y-2 text-xs text-neutral-600 pt-4 border-t border-neutral-200">
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Landing page / toko online / dashboard</li>
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Free revisi 2x + maintenance 1 bulan</li>
+        <li class="flex items-center gap-2"><i class="fa-solid fa-check text-neutral-900"></i>Integrasi order via WhatsApp</li>
+      </ul>
+      <a href="halaman_login.html" data-cta class="mt-6 btn-primary w-full py-3 rounded-2xl text-xs font-bold flex items-center justify-center gap-2"><i class="fa-solid fa-cart-shopping"></i>Order Sekarang</a>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KEUNGGULAN ================= -->
+<section id="keunggulan" class="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
+  <div class="text-center mb-10 reveal">
+    <h2 class="text-2xl sm:text-4xl font-black text-neutral-900 tracking-tight">Kenapa Harus Pilih Kami?</h2>
+    <p class="text-xs sm:text-sm text-neutral-500 mt-2">Enam alasan pelanggan betah dan kembali lagi.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all">
+      <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3"><i class="fa-solid fa-tags"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Harga Paling Bersahabat</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Panel mulai Rp 3.000 — cocok untuk pelajar & pemula yang mau serius online.</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all" style="transition-delay:.08s">
+      <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center mb-3"><i class="fa-solid fa-bolt"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Setup Kilat</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Bayar QRIS → sistem membuat panel otomatis dalam 5–15 menit. Malam pun tetap jalan.</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all" style="transition-delay:.16s">
+      <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-600 flex items-center justify-center mb-3"><i class="fa-solid fa-shield-halved"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Garansi 30 Hari</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Server down di luar kendali Anda? Kami ganti baru, tanpa biaya tambahan.</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all" style="transition-delay:.24s">
+      <div class="w-11 h-11 rounded-2xl bg-neutral-900 text-white flex items-center justify-center mb-3"><i class="fa-solid fa-qrcode"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Pembayaran Otomatis</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">QRIS terintegrasi semua e-wallet & m-banking. Panel dibuat robot, bukan nunggu admin online.</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all" style="transition-delay:.32s">
+      <div class="w-11 h-11 rounded-2xl bg-rose-100 text-rose-500 flex items-center justify-center mb-3"><i class="fa-solid fa-headset"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Support 24/7</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Fast response via WhatsApp 08.00–22.00 WIB, plus AI Assistant yang siap 24 jam.</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all" style="transition-delay:.4s">
+      <div class="w-11 h-11 rounded-2xl bg-violet-100 text-violet-600 flex items-center justify-center mb-3"><i class="fa-solid fa-gauge-high"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Server High-Speed</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Node premium anti delay & anti lag — bot Anda jalan mulus 24 jam nonstop.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CARA ORDER ================= -->
+<section class="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
+  <div class="text-center mb-10 reveal">
+    <h2 class="text-2xl sm:text-4xl font-black text-neutral-900 tracking-tight">Cara Order — 4 Langkah Saja</h2>
+    <p class="text-xs sm:text-sm text-neutral-500 mt-2">Simpel banget, pelajar juga bisa.</p>
+  </div>
+
+  <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+    <div class="glass-card rounded-3xl p-6 relative reveal">
+      <span class="absolute top-5 right-5 text-4xl font-black text-neutral-900/10">1</span>
+      <div class="w-11 h-11 rounded-2xl bg-neutral-900 text-white flex items-center justify-center mb-3"><i class="fa-solid fa-user-plus"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Daftar / Masuk</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Buat akun gratis di ANDRI STORE — cukup 30 detik.</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 relative reveal" style="transition-delay:.1s">
+      <span class="absolute top-5 right-5 text-4xl font-black text-neutral-900/10">2</span>
+      <div class="w-11 h-11 rounded-2xl bg-neutral-900 text-white flex items-center justify-center mb-3"><i class="fa-solid fa-qrcode"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Pilih Paket & Bayar QRIS</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Scan QR pakai e-wallet atau m-banking apa pun.</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 relative reveal" style="transition-delay:.2s">
+      <span class="absolute top-5 right-5 text-4xl font-black text-neutral-900/10">3</span>
+      <div class="w-11 h-11 rounded-2xl bg-neutral-900 text-white flex items-center justify-center mb-3"><i class="fa-solid fa-gears"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Panel Dibuat Otomatis</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Sistem membuat server Pterodactyl Anda dalam hitungan detik.</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 relative reveal" style="transition-delay:.3s">
+      <span class="absolute top-5 right-5 text-4xl font-black text-neutral-900/10">4</span>
+      <div class="w-11 h-11 rounded-2xl bg-emerald-500 text-white flex items-center justify-center mb-3"><i class="fa-solid fa-bell"></i></div>
+      <h4 class="font-black text-sm text-neutral-900">Kredensial Masuk Notifikasi</h4>
+      <p class="text-xs text-neutral-500 mt-1.5 leading-relaxed">Username, password & server langsung terkirim ke akun Anda. Siap dipakai!</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TESTIMONI ================= -->
+<section id="testimoni" class="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
+  <div class="text-center mb-10 reveal">
+    <h2 class="text-2xl sm:text-4xl font-black text-neutral-900 tracking-tight">Kata Mereka yang Sudah Order</h2>
+    <div class="flex items-center justify-center gap-1.5 mt-3 text-amber-500">
+      <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+      <span class="text-xs font-bold text-neutral-600 ml-2">4.9/5 dari 800+ ulasan</span>
+    </div>
+  </div>
+
+  <div class="grid md:grid-cols-3 gap-5 sm:gap-6">
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all">
+      <div class="flex items-center gap-3 mb-4">
+        <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&auto=format&fit=crop&q=80" onerror="avatarFallback(this)" class="w-11 h-11 rounded-2xl object-cover border border-white" alt="">
+        <div><p class="text-xs font-black text-neutral-900">budi_gaming</p><p class="text-[10px] text-neutral-400">Pelanggan sejak Mar 2024</p></div>
+      </div>
+      <div class="text-amber-500 text-xs mb-2"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+      <p class="text-xs text-neutral-600 leading-relaxed">"Panelnya kencang parah, bot WA jalan 24 jam nonstop gak pernah ngelag. Bayar QRIS jam 2 pagi, 10 menit langsung aktif. Gila sih ini."</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all" style="transition-delay:.12s">
+      <div class="flex items-center gap-3 mb-4">
+        <img src="https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100&auto=format&fit=crop&q=80" onerror="avatarFallback(this)" class="w-11 h-11 rounded-2xl object-cover border border-white" alt="">
+        <div><p class="text-xs font-black text-neutral-900">rizky_store</p><p class="text-[10px] text-neutral-400">Reseller Panel</p></div>
+      </div>
+      <div class="text-amber-500 text-xs mb-2"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+      <p class="text-xs text-neutral-600 leading-relaxed">"Yang paling suka tuh sistem otomatisnya — customer saya bayar, panel langsung jadi, gak perlu saya antriin satu-satu. Untung naik 40% sebulan."</p>
+    </div>
+    <div class="glass-card rounded-3xl p-6 reveal hover:shadow-lg transition-all" style="transition-delay:.24s">
+      <div class="flex items-center gap-3 mb-4">
+        <img src="https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=100&auto=format&fit=crop&q=80" onerror="avatarFallback(this)" class="w-11 h-11 rounded-2xl object-cover border border-white" alt="">
+        <div><p class="text-xs font-black text-neutral-900">dedi_web</p><p class="text-[10px] text-neutral-400">Owner Toko Online</p></div>
+      </div>
+      <div class="text-amber-500 text-xs mb-2"><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i></div>
+      <p class="text-xs text-neutral-600 leading-relaxed">"Website toko online-nya rapi banget, dashboard gampang dipakai. Revisi cepat, adminnya fast response. Recommended buat yang mau serius jualan online."</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CTA FINAL ================= -->
+<section class="max-w-[1200px] mx-auto px-4 sm:px-6 py-12">
+  <div class="reveal">
+    <div class="relative overflow-hidden rounded-[2rem] bg-neutral-900 text-white p-8 sm:p-14 text-center shadow-2xl">
+      <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full bg-amber-500/20 blur-3xl"></div>
+      <div class="absolute -bottom-24 -left-16 w-72 h-72 rounded-full bg-white/10 blur-3xl"></div>
+      <div class="relative z-10">
+        <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/10 border border-white/20 text-[11px] font-bold mb-5">
+          <i class="fa-solid fa-gift text-amber-300"></i>GRATIS DAFTAR — TANPA SYARAT RIBET
+        </div>
+        <h2 class="text-2xl sm:text-4xl font-black tracking-tight leading-tight">Siap Punya Server Sendiri<br>Malam Ini Juga?</h2>
+        <p class="mt-4 text-xs sm:text-sm text-neutral-300 max-w-xl mx-auto leading-relaxed">
+          Bergabung dengan 1.200+ pelanggan yang sudah merasakan order panel otomatis.
+          Daftar sekarang, order pertama Anda bisa aktif kurang dari 5 menit.
+        </p>
+        <a href="halaman_login.html" data-cta class="mt-8 inline-flex items-center gap-2 px-8 py-4 bg-white text-neutral-900 text-sm font-black rounded-2xl shadow-xl hover:scale-[1.03] hover:shadow-2xl transition-all">
+          <i class="fa-solid fa-rocket"></i>Mulai Sekarang — Gratis<i class="fa-solid fa-arrow-right text-xs"></i>
+        </a>
+        <p class="mt-4 text-[10px] text-neutral-400"><i class="fa-solid fa-lock mr-1"></i>Data Anda aman & tidak dibagikan ke pihak mana pun.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<footer class="max-w-[1200px] mx-auto px-4 sm:px-6 pb-6 pt-4">
+  <div class="glass-panel rounded-3xl p-6 sm:p-8">
+    <div class="grid sm:grid-cols-3 gap-8">
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <div class="w-9 h-9 rounded-xl bg-neutral-900 flex items-center justify-center"><i class="fa-solid fa-server text-white text-sm"></i></div>
+          <p class="font-black text-sm text-neutral-900 uppercase tracking-tight">ANDRI STORE</p>
+        </div>
+        <p class="text-[11px] text-neutral-500 leading-relaxed">Platform jual-beli produk digital dengan sistem otomatis terpadu — panel server, bot, dan website dalam satu tempat.</p>
+      </div>
+      <div>
+        <p class="text-[10px] font-bold text-neutral-400 tracking-widest uppercase mb-3">MENU</p>
+        <div class="space-y-2 text-xs font-semibold text-neutral-600">
+          <a href="#beranda" class="block hover:text-neutral-900 transition-colors">Beranda</a>
+          <a href="#layanan" class="block hover:text-neutral-900 transition-colors">Layanan & Harga</a>
+          <a href="halaman_login.html" class="block hover:text-neutral-900 transition-colors">Masuk / Daftar</a>
+        </div>
+      </div>
+      <div>
+        <p class="text-[10px] font-bold text-neutral-400 tracking-widest uppercase mb-3">KONTAK</p>
+        <div class="space-y-2 text-xs font-semibold text-neutral-600">
+          <a href="https://wa.me/6281234567890" target="_blank" rel="noopener" class="flex items-center gap-2 hover:text-neutral-900 transition-colors"><i class="fa-brands fa-whatsapp text-emerald-600"></i>WhatsApp Support</a>
+          <a href="https://t.me/andristore" target="_blank" rel="noopener" class="flex items-center gap-2 hover:text-neutral-900 transition-colors"><i class="fa-brands fa-telegram text-sky-600"></i>Telegram Channel</a>
+          <a href="mailto:support@andristore.co" class="flex items-center gap-2 hover:text-neutral-900 transition-colors"><i class="fa-regular fa-envelope text-amber-600"></i>support@andristore.co</a>
+        </div>
+      </div>
+    </div>
+    <div class="mt-6 pt-5 border-t border-neutral-200 flex flex-col sm:flex-row items-center justify-between gap-2">
+      <p class="text-[10px] text-neutral-400 font-semibold">© <span id="year">2025</span> ANDRI STORE. All rights reserved.</p>
+      <p class="text-[10px] text-neutral-400 font-semibold"><i class="fa-solid fa-circle-check text-emerald-500 mr-1"></i>Pembayaran QRIS terverifikasi otomatis</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ---------- Avatar fallback ---------- */
+const AVATAR_FALLBACK = "data:image/svg+xml;utf8," + encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'><rect width='48' height='48' rx='14' fill='#e7e1d3'/><circle cx='24' cy='19' r='8' fill='#a89f8e'/><path d='M8 46c3-10 9-13 16-13s13 3 16 13z' fill='#a89f8e'/></svg>");
+function avatarFallback(img){ img.onerror=null; img.src=AVATAR_FALLBACK; }
+
+/* ---------- Tema: sinkron dengan dashboard (key andri_settings) ---------- */
+let settingsCache = (()=>{ try{ return JSON.parse(localStorage.getItem('andri_settings'))||{theme:'light'}; }catch(e){ return {theme:'light'}; } })();
+function applyTheme(t){
+  document.documentElement.classList.toggle('theme-dark', t==='dark');
+  const icon=document.querySelector('#themeToggleBtn i');
+  if(icon) icon.className=t==='dark'?'fa-solid fa-sun text-sm':'fa-solid fa-moon text-sm';
+}
+function toggleTheme(){
+  settingsCache.theme = settingsCache.theme==='dark'?'light':'dark';
+  localStorage.setItem('andri_settings', JSON.stringify(settingsCache));
+  applyTheme(settingsCache.theme);
+}
+applyTheme(settingsCache.theme);
+
+/* ---------- Kalau sudah login → CTA jadi "Buka Dashboard" ---------- */
+(function checkSession(){
+  let session=null;
+  try{ session=JSON.parse(localStorage.getItem('andri_session')||sessionStorage.getItem('andri_session')||'null'); }catch(e){}
+  if(session && session.role){
+    document.querySelectorAll('[data-cta]').forEach(el=>{
+      el.setAttribute('href','dashboard.html');
+      const span=el.querySelector('span'); // pertahankan struktur, ganti teks utama
+      if(span) span.textContent='Buka Dashboard';
+      else if(!el.innerHTML.includes('fa-arrow-right')) el.innerHTML='<i class="fa-solid fa-gauge-high mr-2"></i>Buka Dashboard';
+    });
+  }
+})();
+
+/* ---------- Menu mobile ---------- */
+function toggleMobileMenu(){ document.getElementById('mobileMenu').classList.toggle('hidden'); }
+
+/* ---------- Statistik: count-up saat masuk viewport ---------- */
+function animateCount(el){
+  const target=parseFloat(el.dataset.target);
+  const suffix=el.dataset.suffix||'';
+  const decimals=el.dataset.decimals?parseInt(el.dataset.decimals):0;
+  const dur=1600, start=performance.now();
+  function tick(now){
+    const p=Math.min(1,(now-start)/dur);
+    const eased=1-Math.pow(1-p,3); // easeOutCubic
+    const val=target*eased;
+    el.textContent=(decimals?val.toFixed(decimals):Math.round(val).toLocaleString('id-ID'))+suffix;
+    if(p<1) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+const io=new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(en.isIntersecting){
+      en.target.classList.add('show');
+      if(en.target.classList.contains('stat-num')) animateCount(en.target);
+      io.unobserve(en.target);
+    }
+  });
+},{threshold:.25});
+document.querySelectorAll('.reveal,.stat-num').forEach(el=>io.observe(el));
+
+/* ---------- Tahun footer ---------- */
+document.getElementById('year').textContent=new Date().getFullYear();
+</script>
+<script src="fx/fx.js"></script>
+</body>
+</html>
