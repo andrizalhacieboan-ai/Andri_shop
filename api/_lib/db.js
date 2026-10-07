@@ -1,4 +1,5 @@
 // Turso (libSQL) — env: TURSO_DATABASE_URL (libsql://...) + TURSO_AUTH_TOKEN
+import './env.js';
 import { createClient } from '@libsql/client';
 
 let client = null;
@@ -10,8 +11,11 @@ export function isDbEnabled() {
 
 export function getDb() {
   if (!client) {
+    let url = process.env.TURSO_DATABASE_URL;
+    // Serverless (Vercel): HTTP lebih andal daripada WebSocket yang bisa basi antar-invocation
+    if (process.env.VERCEL && url.startsWith('libsql://')) url = 'https://' + url.slice('libsql://'.length);
     client = createClient({
-      url: process.env.TURSO_DATABASE_URL,
+      url,
       authToken: process.env.TURSO_AUTH_TOKEN, // tidak wajib untuk file: lokal
     });
   }
