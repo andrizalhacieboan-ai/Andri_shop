@@ -14,8 +14,8 @@ export async function saveOrder(orderId, d) {
   if (!isDbEnabled()) { memoryOrders.set(orderId, { ...d, createdAt: Date.now() }); return; }
   await initDb();
   await getDb().execute({
-    sql: 'INSERT INTO orders (order_id, ram_key, username, months, amount, status, password) VALUES (?,?,?,?,?,?,?)',
-    args: [orderId, d.ramKey, d.username, d.months, d.amount, 'pending', d.password],
+    sql: 'INSERT INTO orders (order_id, ram_key, username, months, amount, status, password, owner) VALUES (?,?,?,?,?,?,?,?)',
+    args: [orderId, d.ramKey, d.username, d.months, d.amount, 'pending', d.password, d.owner || null],
   });
 }
 
