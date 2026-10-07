@@ -42,6 +42,6 @@ export async function createUser({ name, email, password }) {
 export async function findUser(identifier) {
   await initDb();
   const id = String(identifier || '').trim().toLowerCase().replace(/\s+/g, ' ');
-  const { rows } = await getDb().execute({ sql: 'SELECT * FROM users WHERE username = ? OR email = ? LIMIT 1', args: [id, id] });
+  const { rows } = await getDb().execute({ sql: 'SELECT * FROM users WHERE lower(username) = ? OR lower(email) = ? LIMIT 1', args: [id, id] });
   return rows[0] || null;
 }
