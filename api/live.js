@@ -4,6 +4,7 @@
 import { getSession } from './_lib/guard.js';
 import { isDbEnabled, getDb, initDb } from './_lib/db.js';
 import { getPteroSnapshot } from './_lib/ptero-live.js';
+import { explainDbError } from './_lib/env.js';
 import { PRODUCTS } from './_lib/products.js';
 
 const iso = s => (s ? String(s).replace(' ', 'T') + 'Z' : null);
@@ -81,6 +82,6 @@ export default async function handler(req, res) {
     return res.status(200).json(out);
   } catch (e) {
     console.error('LIVE ERROR:', e.message);
-    return res.status(500).json({ success: false, message: 'Gagal memuat data real-time' });
+    return res.status(500).json({ success: false, message: explainDbError(e) || 'Gagal memuat data real-time' });
   }
 }
