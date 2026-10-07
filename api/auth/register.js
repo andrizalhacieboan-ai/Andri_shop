@@ -1,6 +1,7 @@
 // POST /api/auth/register { name, email, password } → akun tersimpan di Turso
 import { getAdminAccount, isRateLimited, registerFailedAttempt } from '../_lib/auth.js';
 import { isDbEnabled } from '../_lib/db.js';
+import { explainDbError } from '../_lib/env.js';
 import { validateSignup, createUser } from '../_lib/users.js';
 
 export default async function handler(req, res) {
@@ -30,6 +31,6 @@ export default async function handler(req, res) {
   } catch (e) {
     if (e.code === 'DUP') return res.status(409).json({ success: false, message: e.message });
     console.error('REGISTER ERROR:', e.message);
-    return res.status(500).json({ success: false, message: 'Gagal mendaftar, coba lagi.' });
+    return res.status(500).json({ success: false, message: explainDbError(e) || 'Gagal mendaftar, coba lagi.' });
   }
 }
