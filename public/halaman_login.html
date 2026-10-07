@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+<script src="/fx/intro.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ANDRI STORE - Sign Up & Authentication</title>
@@ -675,6 +676,7 @@
             currentUser = { ...user, role };
             const session = { ...currentUser, token: token || null };
             try {
+                localStorage.removeItem('andri_session'); sessionStorage.removeItem('andri_session'); // buang sesi lama (cegah token basi menang)
                 (remember ? localStorage : sessionStorage).setItem('andri_session', JSON.stringify(session));
             } catch (e) {}
 
