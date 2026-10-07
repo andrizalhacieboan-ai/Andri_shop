@@ -1,4 +1,5 @@
 // Util auth: kredensial dari ENV, timing-safe compare, token HMAC, rate limit
+import './env.js';
 import crypto from 'crypto';
 
 export function getAdminAccount() {
